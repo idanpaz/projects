@@ -1,6 +1,6 @@
 #include <cstddef> // size_t
 #include <iostream> // test
-#include <semaphore>
+#include <pthread.h> // mutex 
 
 template <typename T>
 class QuickPushOrderedList
@@ -27,11 +27,12 @@ private:
 
     int (*m_cmpFunc)(const T lhs, const T rhs);
     size_t m_size;
+    pthread_mutex_t m_lock;
 };
 
 template <typename T>
 QuickPushOrderedList<T>::QuickPushOrderedList(int (*cmpFunc)(const T lhs, const T rhs)) : 
-m_head(NULL), m_cmpFunc(cmpFunc), m_size(0) {}
+m_head(NULL), m_cmpFunc(cmpFunc), m_size(0), m_lock({0}) {}
 
 template <typename T>
 QuickPushOrderedList<T>::~QuickPushOrderedList()
@@ -49,6 +50,8 @@ QuickPushOrderedList<T>::~QuickPushOrderedList()
 template <typename T>
 void QuickPushOrderedList<T>::Push(T data)
 {
+    pthread_mutex_lock(&m_lock);
+
     struct node *new_node = new struct node;
     
     new_node->data = data;
@@ -56,11 +59,15 @@ void QuickPushOrderedList<T>::Push(T data)
     m_head = new_node;
 
     ++m_size;
+
+    pthread_mutex_unlock(&m_lock);
 }
 
 template <typename T>
 T QuickPushOrderedList<T>::Pop()
 {
+    pthread_mutex_lock(&m_lock);
+
     struct node *retNode = m_head;
     struct node *temp = m_head->next;
     T ret;
@@ -112,6 +119,8 @@ T QuickPushOrderedList<T>::Pop()
     }
 
     --m_size;
+
+    pthread_mutex_unlock(&m_lock);
     
     return ret;
 }
