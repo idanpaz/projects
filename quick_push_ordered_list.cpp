@@ -90,18 +90,14 @@ T QuickPushOrderedList<T>::Pop()
         retNode->data = temp->data;
         retNode->next = temp->next;
 
-        if (temp == m_head)
-        {
-            m_head = temp->next;
-        }
-
         delete temp; temp = NULL;
     }
 
     else
     {
         temp = m_head;
-        while (temp && temp->next != retNode)
+        
+        while (temp && temp != retNode && temp->next != retNode)
         {
             temp = temp->next;
         }
@@ -113,8 +109,12 @@ T QuickPushOrderedList<T>::Pop()
                 m_head = retNode->next;
             }
 
+            if (temp->next == retNode)
+            {
+                temp->next = NULL;
+            }
+
             delete retNode; retNode = NULL;
-            temp->next = NULL;
         }
     }
 
@@ -155,6 +155,32 @@ int main()
         std::cout << list.Pop() << "\n";
     }
 
-    
+    std::cout << "\n";
+
+    list.Push(1);
+    list.Push(5);
+    list.Push(2);
+    list.Push(3);
+    list.Push(4);
+    list.Push(6);
+    list.Push(8);
+    list.Push(9);
+    list.Push(7);
+
+    while (list.Size())
+    {
+        std::cout << list.Pop() << "\n";
+    }
+
+    std::cout << "\n";
+
+    list.Push(5);
+
+    std::cout << list.Pop() << "\n";
+
+    list.Push(2);
+
+    std::cout << list.Pop() << "\n";
+
     return 0;
 }

@@ -50,10 +50,10 @@ QuickPopOrderedList<T>::~QuickPopOrderedList()
 template <typename T>
 void QuickPopOrderedList<T>::Push(T data)
 {
+    pthread_mutex_lock(&m_lock);
+    
     struct node *new_node = new struct node;
     struct node *iter = m_head;
-
-    pthread_mutex_lock(&m_lock);
 
     new_node->data = data;
     new_node->next = NULL;
@@ -62,7 +62,6 @@ void QuickPopOrderedList<T>::Push(T data)
     if (!iter)
     {
         m_head = new_node;
-        new_node->next = NULL;
         pthread_mutex_unlock(&m_lock);
         return;
     }
@@ -115,10 +114,10 @@ int IntCompareFunc(const int a, const int b)
     return b - a;
 }
 
-QuickPopOrderedList<int> list(IntCompareFunc);
 
 int main()
 {
+    QuickPopOrderedList<int> list(IntCompareFunc);
 
     list.Push(5);
     list.Push(1);
