@@ -1,6 +1,3 @@
-#include <iostream>
-#include <random>
-
 #include "snake.hpp"
 
 Snake::Snake(u_int16_t initialSnakeSize, u_int16_t pointRadius) : 
@@ -21,66 +18,43 @@ void Snake::AddPoint(u_int16_t x, u_int16_t y)
     sf::CircleShape point(m_pointRadius);
     point.setFillColor(sf::Color::Green);
     point.setPosition(x, y);
-    m_deque.push_front(point);
+    m_vector.insert(m_vector.begin(), point);
 }
 
 void Snake::DrawSnake(sf::RenderWindow& window)
 {
-    for (const auto& point : m_deque)
+    for (const auto& point : m_vector)
     {
         window.draw(point);
     }
 }
 
-std::deque<sf::CircleShape>& Snake::GetSnakeContainer() { return m_deque; }
+std::vector<sf::CircleShape>& Snake::GetSnakeContainer() { return m_vector; }
 
 u_int16_t Snake::GetRadius()
 {
     return m_pointRadius;
 }
 
-Food::Food(u_int16_t initialXPos, u_int16_t initialYPos) :
-           m_xPos(initialXPos), m_yPos(initialXPos) {}
-
-void Food::DrawFood(sf::RenderWindow& window, Snake& snake)
-{
-    sf::CircleShape food(snake.GetRadius());
-    food.setFillColor(sf::Color::Blue);
-    food.setPosition(m_xPos, m_yPos);
-    window.draw(food);
-}
-
-u_int16_t Food::GetXPosition() { return m_xPos; }
-
-u_int16_t Food::GetYPosition() { return m_yPos; }
-
-void Food::SetXPosition(u_int16_t xPos) { m_xPos = xPos; }
-
-void Food::SetYPosition(u_int16_t yPos) { m_yPos = yPos; }
-
 Board::Board(u_int16_t width, u_int16_t height, std::string title, 
              u_int16_t initialSnakeSize, u_int16_t pointRadius) : 
              m_window(sf::VideoMode(width, height), title.c_str()), 
-             m_snake(initialSnakeSize, pointRadius), 
-             m_food(GetRandomXPosition(), GetRandomYPosition()) 
+             m_snake(initialSnakeSize, pointRadius)
 {
-    while (m_food.GetXPosition() >= width || m_food.GetYPosition() >= height)
-    {
-        m_food.SetXPosition(GetRandomXPosition());
-        m_food.SetYPosition(GetRandomYPosition());
-    }
+    m_food.setRadius(m_snake.GetRadius());
+    m_food.setFillColor(sf::Color::Blue);
+    m_food.setPosition(GetRandomXPosition(), GetRandomYPosition());
 }
 
 sf::RenderWindow& Board::GetWindow() { return m_window; }
 
-Snake& Board::GetSnake() { return m_snake; }
+sf::CircleShape& Board::GetFood() { return m_food; }
 
-Food& Board::GetFood() { return m_food; }
+Snake& Board::GetSnake() { return m_snake; }
 
 u_int16_t Board::GetRandomXPosition()
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    std::mt19937 gen(m_rd());
     u_int16_t diameter = m_snake.GetRadius() * 2;
     std::uniform_int_distribution<u_int16_t> disX(0, 
     (m_window.getSize().x - diameter) / diameter);
@@ -90,8 +64,7 @@ u_int16_t Board::GetRandomXPosition()
 
 u_int16_t Board::GetRandomYPosition()
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    std::mt19937 gen(m_rd());
     u_int16_t diameter = m_snake.GetRadius() * 2;
     std::uniform_int_distribution<u_int16_t> disY(0, 
     (m_window.getSize().y - diameter) / diameter);
@@ -106,28 +79,27 @@ GameEngine::GameEngine(u_int16_t width, u_int16_t height, std::string title,
 
 void GameEngine::MoveSnake(sf::Clock& clockMove)
 {
-    while (clockMove.getElapsedTime().asMilliseconds() <= 100);
+    if (clockMove.getElapsedTime().asMilliseconds() >= 100)
+    {
+        m_board.GetWindow().clear();
+        m_board.GetSnake().DrawSnake(m_board.GetWindow());
+        m_board.GetWindow().draw(m_board.GetFood());
+        m_board.GetWindow().display();
 
-    m_board.GetWindow().clear();
-    m_board.GetSnake().DrawSnake(m_board.GetWindow());
-    m_board.GetFood().DrawFood(m_board.GetWindow(), m_board.GetSnake());
-    m_board.GetWindow().display();
+        ExpandSnake();
 
-    ExpandSnake();
-
-    m_board.GetSnake().GetSnakeContainer().pop_back();
-    clockMove.restart();
+        m_board.GetSnake().GetSnakeContainer().pop_back();
+        clockMove.restart();
+    }
 }
 
 void GameEngine::GenerateFood()
 {
-    if (m_board.GetSnake().GetSnakeContainer().front().getPosition().x
-        == m_board.GetFood().GetXPosition() &&
-        m_board.GetSnake().GetSnakeContainer().front().getPosition().y
-        == m_board.GetFood().GetYPosition())
+    if (m_board.GetSnake().GetSnakeContainer().front().getPosition() == 
+        m_board.GetFood().getPosition())
     {
-        m_board.GetFood().SetXPosition(m_board.GetRandomXPosition());
-        m_board.GetFood().SetYPosition(m_board.GetRandomYPosition());
+        m_board.GetFood().setPosition(m_board.GetRandomXPosition(), 
+                                      m_board.GetRandomYPosition());
 
         ExpandSnake();
         ++m_score;
@@ -217,23 +189,23 @@ void GameEngine::Run()
             GenerateFood();
         }
 
-        if (m_board.GetSnake().GetSnakeContainer().front().getPosition().x == m_board.GetWindow().getSize().x ||
-            m_board.GetSnake().GetSnakeContainer().front().getPosition().y == m_board.GetWindow().getSize().y ||
-            m_board.GetSnake().GetSnakeContainer().front().getPosition().x >= 65500 ||
-            m_board.GetSnake().GetSnakeContainer().front().getPosition().y >= 65500)
+        size_t size = m_board.GetSnake().GetSnakeContainer().size();
+        auto frontPos = m_board.GetSnake().GetSnakeContainer().front().getPosition();
+        auto xPos = m_board.GetSnake().GetSnakeContainer().front().getPosition().x;
+        auto yPos = m_board.GetSnake().GetSnakeContainer().front().getPosition().y;
+
+        if (xPos == m_board.GetWindow().getSize().x || xPos >= 65500 ||
+            yPos == m_board.GetWindow().getSize().y || yPos >= 65500)
         {
             m_shouldRun = false;
         }
 
-        size_t size = m_board.GetSnake().GetSnakeContainer().size();
-
         for (size_t i = 1; i < size; ++i)
         {
-            if (m_board.GetSnake().GetSnakeContainer()[i].getPosition() ==
-                m_board.GetSnake().GetSnakeContainer().front().getPosition())
+            if (m_board.GetSnake().GetSnakeContainer()[i].getPosition() == frontPos)
             {
                 m_shouldRun = false;
             }
-        } 
+        }
     }
 }

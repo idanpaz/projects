@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <sys/types.h>
-#include <deque>
+#include <random>
+#include <vector>
 
 enum dir
 {
@@ -18,30 +19,12 @@ public:
     void AddPoint(u_int16_t x, u_int16_t y);
     void DrawSnake(sf::RenderWindow &window);
 
-    std::deque<sf::CircleShape> &GetSnakeContainer();
+    std::vector<sf::CircleShape> &GetSnakeContainer();
     u_int16_t GetRadius();
 
 private:
-    std::deque<sf::CircleShape> m_deque;
+    std::vector<sf::CircleShape> m_vector;
     u_int16_t m_pointRadius;
-};
-
-class Food
-{
-public:
-    explicit Food(u_int16_t initialXPos, u_int16_t initialYPos);
-
-    void DrawFood(sf::RenderWindow &window, Snake &snake);
-
-    u_int16_t GetXPosition();
-    u_int16_t GetYPosition();
-
-    void SetXPosition(u_int16_t xPos);
-    void SetYPosition(u_int16_t yPos);
-
-private:
-    u_int16_t m_xPos;
-    u_int16_t m_yPos;
 };
 
 class Board
@@ -51,16 +34,17 @@ public:
                    u_int16_t initialSnakeSize, u_int16_t pointRadius);
 
     sf::RenderWindow &GetWindow();
+    sf::CircleShape &GetFood();
     Snake &GetSnake();
-    Food &GetFood();
 
     u_int16_t GetRandomXPosition();
     u_int16_t GetRandomYPosition();
 
 private:
     sf::RenderWindow m_window;
+    sf::CircleShape m_food;
     Snake m_snake;
-    Food m_food;
+    std::random_device m_rd;
 };
 
 class GameEngine
