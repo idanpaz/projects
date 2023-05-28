@@ -1,0 +1,11 @@
+To install sfml graphics library, execute the following command:
+
+sudo apt install libsfml-dev
+
+To compile the game, write the following line in terminal:
+
+g++ snake.cpp snake_test.cpp -lsfml-graphics -lsfml-window -lsfml-system -o snake
+
+To run the game, simply write:
+
+./snake
