@@ -1,7 +1,6 @@
 #include <iostream>
 #include <random>
 
-#include "sqlite3/sqlite3.h"
 #include "snake.hpp"
 
 Snake::Snake(u_int16_t initialSnakeSize, u_int16_t pointRadius) : 
