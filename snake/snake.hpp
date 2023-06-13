@@ -26,8 +26,8 @@ public:
     void Draw(sf::RenderWindow &window);
 
     void AddPoint(u_int16_t x, u_int16_t y);
+    void MoveSnake(Dir dir);
     std::vector<sf::CircleShape> &GetSnakeContainer();
-    u_int16_t GetRadius();
 
 private:
     std::vector<sf::CircleShape> m_vector;
@@ -52,10 +52,10 @@ private:
     u_int16_t m_boardHeight;
 };
 
-class UserInterface : public BoardObjects
+class SnakeUI : public BoardObjects
 {
 public:
-    UserInterface(u_int16_t boardWidth);
+    SnakeUI(u_int16_t boardWidth);
     void Draw(sf::RenderWindow& window);
 
     sf::Text& GetScoreText();
@@ -76,8 +76,8 @@ class Board
 public:
     explicit Board(u_int16_t width, u_int16_t height, std::string title,
                    u_int16_t initialSnakeSize, u_int16_t pointRadius);
-
     ~Board();
+    
     sf::RenderWindow &GetWindow();
     std::vector<BoardObjects *> &GetBoardObjects();
 
@@ -96,9 +96,8 @@ public:
     void Run();
 
 private:
-    void MoveSnake(sf::Clock &clock);
+    void DisplayBoardObjects(sf::Clock &clock);
     void ChangeDir(sf::Event& event);
-    void ExpandSnake();
     void CheckFood();
     void CheckDeath();
     void WriteScoreToDB(std::string username, std::string score);

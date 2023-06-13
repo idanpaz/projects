@@ -2,6 +2,168 @@
 
 #include "snake.hpp"
 
+std::vector<std::pair<std::string, int>> GetTopScores();
+void InitializeData(sf::Text& welcome, sf::Text& userName, sf::RectangleShape& nameInput,
+                    sf::Text& nick, sf::Text& startGame, sf::Text& highScoresText,
+                    sf::RectangleShape& startButton, sf::RectangleShape& highScores);
+void HandleNameInput(sf::Event& event, std::string& nickName, sf::Text& nick);
+void HandleStartGame(std::string& nickName);
+void HandleHighScores(sf::Font& font);
+void DisplayGameConsole(sf::RenderWindow& gameConsole, sf::Text& welcome,
+                        sf::Text& userName, sf::RectangleShape& nameInput,
+                        sf::Text& nick, sf::RectangleShape& startButton, 
+                        sf::Text& startGame, sf::RectangleShape& highScores,
+                        sf::Text& highScoresText);
+
+int main()
+{
+    sf::RenderWindow gameConsole(sf::VideoMode(800, 600), "Game Console");
+    sf::Font font;
+    sf::Event event;
+    sf::Text welcome("Welcome to Snake!", font, 40);
+    sf::Text userName("Enter your username: ", font, 20);
+    sf::Text nick("", font, 20);
+    sf::Text startGame("Start Game", font, 50);
+    sf::Text highScoresText("High Scores", font, 50);
+    sf::RectangleShape nameInput(sf::Vector2f(200, 30));
+    sf::RectangleShape startButton(sf::Vector2f(300, 100));
+    sf::RectangleShape highScores(sf::Vector2f(300, 100));
+    std::string nickName("");
+
+    if (!font.loadFromFile("arial.ttf"))
+    {
+        std::cout << "couldn't load font\n";
+    }
+
+    InitializeData(welcome, userName, nameInput, nick, startGame, 
+                   highScoresText, startButton, highScores);
+
+    while (gameConsole.isOpen())
+    {
+        while (gameConsole.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed) gameConsole.close();
+
+            if (event.type == sf::Event::TextEntered)
+            {
+                HandleNameInput(event, nickName, nick);
+            }
+
+            if (event.type == sf::Event::MouseButtonPressed && 
+                event.mouseButton.button == sf::Mouse::Left)
+            {
+                sf::Vector2i mousePosition = sf::Mouse::getPosition(gameConsole);
+
+                if (startGame.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+                {
+                    HandleStartGame(nickName);
+                }
+
+                else if (highScores.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
+                {
+                    HandleHighScores(font);
+                }
+            }
+
+            DisplayGameConsole(gameConsole, welcome, userName, nameInput, nick, 
+                               startButton, startGame, highScores, highScoresText);
+        }
+    }
+
+    return 0;
+}
+
+void InitializeData(sf::Text& welcome, sf::Text& userName, sf::RectangleShape& nameInput,
+                    sf::Text& nick, sf::Text& startGame, sf::Text& highScoresText,
+                    sf::RectangleShape& startButton, sf::RectangleShape& highScores)
+{
+    welcome.setPosition(200, 10);
+    userName.setPosition(150, 80);
+    nameInput.setPosition(400, 80);
+    nick.setPosition(400, 80);
+    nick.setFillColor(sf::Color::Red);
+    startButton.setOutlineColor(sf::Color::Red);
+    startButton.setOutlineThickness(5);
+    startButton.setPosition(250, 200);
+    startGame.setPosition(270, 220);
+    startGame.setFillColor(sf::Color::Red);
+    highScores.setOutlineColor(sf::Color::Red);
+    highScores.setOutlineThickness(5);
+    highScores.setPosition(250, 400);
+    highScoresText.setPosition(265, 420);
+    highScoresText.setFillColor(sf::Color::Red);   
+}
+
+void HandleNameInput(sf::Event& event, std::string& nickName, sf::Text& nick)
+{
+    if (event.text.unicode < 128)
+    {
+        if (event.text.unicode == '\b' && !nickName.empty()) nickName.pop_back();
+
+        else if (event.text.unicode != '\b') nickName += static_cast<char>(event.text.unicode);
+
+        nick.setString(nickName);
+    }
+}
+
+void HandleStartGame(std::string& nickName)
+{
+    GameEngine snake(800, 600, "Snake Game", 5, 10, nickName);
+    snake.Run();
+}
+
+void HandleHighScores(sf::Font& font)
+{
+    std::vector<std::pair<std::string, int>> topScores = GetTopScores();
+    
+    sf::RenderWindow topScoresWindow(sf::VideoMode(400, 300), "Top Scores");
+    sf::Text scoresText("", font, 20);
+    scoresText.setPosition(20, 20);
+    std::string scoresString;
+
+    for (const auto& score : topScores)
+    {
+        scoresString += score.first + ": " + std::to_string(score.second) + "\n";
+    }
+
+    scoresText.setString(scoresString);
+
+    while (topScoresWindow.isOpen())
+    {
+        sf::Event topScoresEvent;
+
+        while (topScoresWindow.pollEvent(topScoresEvent))
+        {
+            if (topScoresEvent.type == sf::Event::Closed)
+                topScoresWindow.close();
+        }
+
+        topScoresWindow.clear();
+        topScoresWindow.draw(scoresText);
+        topScoresWindow.display();
+    }
+}
+
+void DisplayGameConsole(sf::RenderWindow& gameConsole, sf::Text& welcome,
+                        sf::Text& userName, sf::RectangleShape& nameInput,
+                        sf::Text& nick, sf::RectangleShape& startButton, 
+                        sf::Text& startGame, sf::RectangleShape& highScores,
+                        sf::Text& highScoresText)
+{
+    gameConsole.clear();
+
+    gameConsole.draw(welcome);
+    gameConsole.draw(userName);
+    gameConsole.draw(nameInput);
+    gameConsole.draw(nick);
+    gameConsole.draw(startButton);
+    gameConsole.draw(startGame);
+    gameConsole.draw(highScores);
+    gameConsole.draw(highScoresText);
+
+    gameConsole.display();      
+}
+
 std::vector<std::pair<std::string, int>> GetTopScores()
 {
     std::vector<std::pair<std::string, int>> scores;
@@ -43,122 +205,4 @@ std::vector<std::pair<std::string, int>> GetTopScores()
     sqlite3_close(db);
 
     return scores;
-}
-
-int main()
-{
-    sf::RenderWindow gameConsole(sf::VideoMode(800, 600), "Game Console");
-    sf::Font font;
-    sf::Text welcome("Welcome to Snake!", font, 40);
-    sf::Text userName("Enter your username: ", font, 20);
-    sf::Event event;
-    sf::RectangleShape nameInput(sf::Vector2f(200, 30));
-    std::string nickName("");
-    sf::Text nick("", font, 20);
-    sf::RectangleShape startButton(sf::Vector2f(300, 100));
-    sf::Text startGame("Start Game", font, 50);
-    sf::RectangleShape highScores(sf::Vector2f(300, 100));
-    sf::Text highScoresText("High Scores", font, 50);
-
-    if (!font.loadFromFile("arial.ttf"))
-    {
-        std::cout << "couldn't load font\n";
-    }
-    
-    welcome.setPosition(200, 10);
-    userName.setPosition(150, 80);
-    nameInput.setPosition(400, 80);
-    nick.setPosition(400, 80);
-    nick.setFillColor(sf::Color::Red);
-    startButton.setOutlineColor(sf::Color::Red);
-    startButton.setOutlineThickness(5);
-    startButton.setPosition(250, 200);
-    startGame.setPosition(270, 220);
-    startGame.setFillColor(sf::Color::Red);
-    highScores.setOutlineColor(sf::Color::Red);
-    highScores.setOutlineThickness(5);
-    highScores.setPosition(250, 400);
-    highScoresText.setPosition(265, 420);
-    highScoresText.setFillColor(sf::Color::Red);
-
-    while (gameConsole.isOpen())
-    {
-        while (gameConsole.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed) gameConsole.close();
-
-            if (event.type == sf::Event::TextEntered)
-            {
-                if (event.text.unicode < 128)
-                {
-                    if (event.text.unicode == '\b' && !nickName.empty()) nickName.pop_back();
-
-                    else if (event.text.unicode != '\b') nickName += static_cast<char>(event.text.unicode);
-
-                    nick.setString(nickName);
-                }
-            }
-
-            if (event.type == sf::Event::MouseButtonPressed)
-            {
-                if (event.mouseButton.button == sf::Mouse::Left)
-                {
-                    sf::Vector2i mousePosition = sf::Mouse::getPosition(gameConsole);
-
-                    if (startGame.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
-                    {
-                        GameEngine snake(800, 600, "Snake Game", 5, 10, nickName);
-                        snake.Run();
-                    }
-
-                    else if (highScores.getGlobalBounds().contains(mousePosition.x, mousePosition.y))
-                    {
-                        std::vector<std::pair<std::string, int>> topScores = GetTopScores();
-                        
-                        sf::RenderWindow topScoresWindow(sf::VideoMode(400, 300), "Top Scores");
-                        sf::Text scoresText("", font, 20);
-                        scoresText.setPosition(20, 20);
-                        std::string scoresString;
-
-                        for (const auto& score : topScores)
-                        {
-                            scoresString += score.first + ": " + std::to_string(score.second) + "\n";
-                        }
-
-                        scoresText.setString(scoresString);
-
-                        while (topScoresWindow.isOpen())
-                        {
-                            sf::Event topScoresEvent;
-
-                            while (topScoresWindow.pollEvent(topScoresEvent))
-                            {
-                                if (topScoresEvent.type == sf::Event::Closed)
-                                    topScoresWindow.close();
-                            }
-
-                            topScoresWindow.clear();
-                            topScoresWindow.draw(scoresText);
-                            topScoresWindow.display();
-                        }
-                    }
-                }
-            }
-
-            gameConsole.clear();
-
-            gameConsole.draw(welcome);
-            gameConsole.draw(userName);
-            gameConsole.draw(nameInput);
-            gameConsole.draw(nick);
-            gameConsole.draw(startButton);
-            gameConsole.draw(startGame);
-            gameConsole.draw(highScores);
-            gameConsole.draw(highScoresText);
-
-            gameConsole.display();       
-        }
-    }
-
-    return 0;
 }

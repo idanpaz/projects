@@ -25,6 +25,39 @@ void Snake::AddPoint(u_int16_t x, u_int16_t y)
     m_vector.insert(m_vector.begin(), point);
 }
 
+void Snake::MoveSnake(Dir dir)
+{
+    u_int16_t xPos = GetSnakeContainer().front().getPosition().x;
+    u_int16_t yPos = GetSnakeContainer().front().getPosition().y;
+    u_int16_t diameter = m_pointRadius * 2;
+    switch (dir)
+    {
+        case LEFT:
+        {
+            AddPoint(xPos - diameter, yPos);
+            break;
+        }
+
+        case RIGHT:
+        {
+            AddPoint(xPos + diameter, yPos);
+            break;
+        }
+
+        case UP:
+        {
+            AddPoint(xPos, yPos - diameter);
+            break;
+        }
+
+        case DOWN:
+        {
+            AddPoint(xPos, yPos + diameter);
+            break;
+        }
+    }
+}
+
 void Snake::Draw(sf::RenderWindow& window)
 {
     for (const sf::CircleShape& point : m_vector)
@@ -34,8 +67,6 @@ void Snake::Draw(sf::RenderWindow& window)
 }
 
 std::vector<sf::CircleShape>& Snake::GetSnakeContainer() { return m_vector; }
-
-u_int16_t Snake::GetRadius() { return m_pointRadius; }
 
 Food::Food(u_int16_t radius, u_int16_t width, u_int16_t height) : 
 m_radius(radius), m_boardWidth(width), m_boardHeight(height)
@@ -79,7 +110,7 @@ u_int16_t Food::GetRandomYPosition()
     return ret;
 }
 
-UserInterface::UserInterface(u_int16_t boardWidth) : 
+SnakeUI::SnakeUI(u_int16_t boardWidth) : 
 m_topBorder(sf::Vector2f(boardWidth, 5))
                                      
 {
@@ -104,7 +135,7 @@ m_topBorder(sf::Vector2f(boardWidth, 5))
     m_levelText.setString("1");
 }
 
-void UserInterface::Draw(sf::RenderWindow& window)
+void SnakeUI::Draw(sf::RenderWindow& window)
 {
     window.draw(m_topBorder);
     window.draw(m_yourScoreText);
@@ -113,8 +144,8 @@ void UserInterface::Draw(sf::RenderWindow& window)
     window.draw(m_levelText);
 }
 
-sf::Text& UserInterface::GetScoreText() { return m_scoreText; }
-sf::Text& UserInterface::GetLevelText() { return m_levelText; };
+sf::Text& SnakeUI::GetScoreText() { return m_scoreText; }
+sf::Text& SnakeUI::GetLevelText() { return m_levelText; };
 
 Board::Board(u_int16_t width, u_int16_t height, std::string title, 
              u_int16_t initialSnakeSize, u_int16_t pointRadius) : 
@@ -122,14 +153,14 @@ Board::Board(u_int16_t width, u_int16_t height, std::string title,
 {
     m_boardObjects.push_back(new Snake(initialSnakeSize, pointRadius));
     m_boardObjects.push_back(new Food(pointRadius, width, height));
-    m_boardObjects.push_back(new UserInterface(width));
+    m_boardObjects.push_back(new SnakeUI(width));
 }
 
 Board::~Board()
 {
-    for (u_int16_t i = 0; i < m_boardObjects.size(); ++i)
+    for (BoardObjects *boardObject : m_boardObjects)
     {
-        delete m_boardObjects[i];
+        delete boardObject;
     }
 }
 
@@ -145,23 +176,23 @@ GameEngine::GameEngine(u_int16_t width, u_int16_t height, std::string title,
                        m_dir(RIGHT), m_shouldRun(true), m_score(0), 
                        m_level(1), m_frameTime(100), m_username(username) {}
 
-void GameEngine::MoveSnake(sf::Clock& clock)
+void GameEngine::DisplayBoardObjects(sf::Clock& clock)
 {
     if (clock.getElapsedTime().asMilliseconds() >= m_frameTime)
     {
+        Snake *snake = static_cast<Snake *>(m_board.GetBoardObjects()[0]);
+
         m_board.GetWindow().clear();
 
-        for (u_int16_t i = 0; i < m_board.GetBoardObjects().size(); ++i)
+        for (BoardObjects *boardObject : m_board.GetBoardObjects())
         {
-            m_board.GetBoardObjects()[i]->Draw(m_board.GetWindow());
+            boardObject->Draw(m_board.GetWindow());
         }
 
+        snake->MoveSnake(m_dir);
+        snake->GetSnakeContainer().pop_back();
+
         m_board.GetWindow().display();
-
-        ExpandSnake();
-        static_cast<Snake *>(m_board.GetBoardObjects()[0])->
-        GetSnakeContainer().pop_back();
-
         clock.restart();
     }
 }
@@ -170,65 +201,38 @@ void GameEngine::CheckFood()
 {
     Snake *snake = static_cast<Snake *>(m_board.GetBoardObjects()[0]);
     Food *food = static_cast<Food *>(m_board.GetBoardObjects()[1]);
-    UserInterface *userInterface = static_cast<UserInterface *>
-                                   (m_board.GetBoardObjects()[2]);
+    SnakeUI *snakeUI = static_cast<SnakeUI *>(m_board.GetBoardObjects()[2]);
 
     if (snake->GetSnakeContainer().front().getPosition() ==
         food->GetFoodObj().getPosition())
     {
-        food->GetFoodObj().setPosition(food->GetRandomXPosition(), 
-                                       food->GetRandomYPosition());
+        u_int16_t xPos = 0;
+        u_int16_t yPos = 0;
 
-        ExpandSnake();
+        xPos = food->GetRandomXPosition();
+        yPos = food->GetRandomYPosition();
+
+        for (sf::CircleShape& point : snake->GetSnakeContainer())
+        {
+            while (point.getPosition().x == xPos || point.getPosition().y == yPos)
+            {
+                xPos = food->GetRandomXPosition();
+                yPos = food->GetRandomYPosition();
+            }
+        }
+
+        food->GetFoodObj().setPosition(xPos, yPos);
+        
+        snake->MoveSnake(m_dir);
         ++m_score;
         
-        userInterface->GetScoreText().setString(std::to_string(m_score));
+        snakeUI->GetScoreText().setString(std::to_string(m_score));
 
         if (m_score >= m_level*10)
         {
             ++m_level;
             m_frameTime -= 20;
-            userInterface->GetLevelText().setString(std::to_string(m_level));
-        }
-    }
-}
-
-void GameEngine::ExpandSnake()
-{
-    Snake *snake = static_cast<Snake *>(m_board.GetBoardObjects()[0]);
-
-    u_int16_t xPos = snake->GetSnakeContainer().front().getPosition().x;
-    u_int16_t yPos = snake->GetSnakeContainer().front().getPosition().y;
-    u_int16_t diameter = snake->GetRadius() * 2;
-
-    switch (m_dir)
-    {
-        case LEFT:
-        {
-            snake->AddPoint(xPos - diameter, yPos);
-
-            break;
-        }
-
-        case RIGHT:
-        {
-            snake->AddPoint(xPos + diameter, yPos);
-
-            break;
-        }
-
-        case UP:
-        {
-            snake->AddPoint(xPos, yPos - diameter);
-
-            break;
-        }
-
-        case DOWN:
-        {
-            snake->AddPoint(xPos, yPos + diameter);
-
-            break;
+            snakeUI->GetLevelText().setString(std::to_string(m_level));
         }
     }
 }
@@ -301,7 +305,7 @@ void GameEngine::Run()
 
         if (m_shouldRun)
         {
-            MoveSnake(clock);
+            DisplayBoardObjects(clock);
             CheckFood();
             CheckDeath();
         }
