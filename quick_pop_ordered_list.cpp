@@ -118,6 +118,7 @@ int IntCompareFunc(const int a, const int b)
 int main()
 {
     QuickPopOrderedList<int> list(IntCompareFunc);
+    int x = 0;
 
     list.Push(5);
     list.Push(1);
