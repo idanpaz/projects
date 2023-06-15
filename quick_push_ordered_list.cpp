@@ -148,7 +148,6 @@ int main()
     list.Push(4);
     list.Push(6);
     list.Push(9);
-    list.Push(7);
 
     while (list.Size())
     {
