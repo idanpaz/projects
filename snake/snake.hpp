@@ -16,7 +16,7 @@ class BoardObjects
 {
 public:
     virtual ~BoardObjects() {}
-    virtual void Draw(sf::RenderWindow& window) = 0;
+    virtual void Draw(sf::RenderWindow &window) = 0;
 };
 
 class Snake : public BoardObjects
@@ -25,11 +25,12 @@ public:
     explicit Snake(u_int16_t initialSize, u_int16_t pointRadius);
     void Draw(sf::RenderWindow &window);
 
-    void AddPoint(u_int16_t x, u_int16_t y);
     void MoveSnake(Dir dir);
     std::vector<sf::CircleShape> &GetSnakeContainer();
 
 private:
+    void AddPoint(u_int16_t x, u_int16_t y);
+
     std::vector<sf::CircleShape> m_vector;
     u_int16_t m_pointRadius;
 };
@@ -37,10 +38,10 @@ private:
 class Food : public BoardObjects
 {
 public:
-    Food(u_int16_t radius, u_int16_t m_boardWidth, u_int16_t boardHeight);
-    void Draw(sf::RenderWindow& window);
+    explicit Food(u_int16_t radius, u_int16_t m_boardWidth, u_int16_t boardHeight);
+    void Draw(sf::RenderWindow &window);
 
-    sf::CircleShape& GetFoodObj();
+    sf::CircleShape &GetFoodObj();
     u_int16_t GetRandomXPosition();
     u_int16_t GetRandomYPosition();
 
@@ -55,11 +56,11 @@ private:
 class SnakeUI : public BoardObjects
 {
 public:
-    SnakeUI(u_int16_t boardWidth);
-    void Draw(sf::RenderWindow& window);
+    explicit SnakeUI(u_int16_t boardWidth);
+    void Draw(sf::RenderWindow &window);
 
-    sf::Text& GetScoreText();
-    sf::Text& GetLevelText();
+    sf::Text &GetScoreText();
+    sf::Text &GetLevelText();
 
 private:
     sf::Text m_yourScoreText;
@@ -77,7 +78,7 @@ public:
     explicit Board(u_int16_t width, u_int16_t height, std::string title,
                    u_int16_t initialSnakeSize, u_int16_t pointRadius);
     ~Board();
-    
+
     sf::RenderWindow &GetWindow();
     std::vector<BoardObjects *> &GetBoardObjects();
 
@@ -90,14 +91,14 @@ class GameEngine
 {
 public:
     explicit GameEngine(u_int16_t width, u_int16_t height, std::string title,
-                        u_int16_t initialSnakeSize, u_int16_t pointRadius, 
+                        u_int16_t initialSnakeSize, u_int16_t pointRadius,
                         std::string username);
 
     void Run();
 
 private:
     void DisplayBoardObjects(sf::Clock &clock);
-    void ChangeDir(sf::Event& event);
+    void ChangeDir(sf::Event &event);
     void CheckFood();
     void CheckDeath();
     void WriteScoreToDB(std::string username, std::string score);

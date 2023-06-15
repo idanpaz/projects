@@ -111,8 +111,7 @@ u_int16_t Food::GetRandomYPosition()
 }
 
 SnakeUI::SnakeUI(u_int16_t boardWidth) : 
-m_topBorder(sf::Vector2f(boardWidth, 5))
-                                     
+m_topBorder(sf::Vector2f(boardWidth, 5))                                     
 {
     m_font.loadFromFile("arial.ttf");
 
@@ -145,16 +144,14 @@ void SnakeUI::Draw(sf::RenderWindow& window)
 }
 
 sf::Text& SnakeUI::GetScoreText() { return m_scoreText; }
-sf::Text& SnakeUI::GetLevelText() { return m_levelText; };
+sf::Text& SnakeUI::GetLevelText() { return m_levelText; }
 
 Board::Board(u_int16_t width, u_int16_t height, std::string title, 
              u_int16_t initialSnakeSize, u_int16_t pointRadius) : 
-             m_window(sf::VideoMode(width, height + 100), title.c_str())
-{
-    m_boardObjects.push_back(new Snake(initialSnakeSize, pointRadius));
-    m_boardObjects.push_back(new Food(pointRadius, width, height));
-    m_boardObjects.push_back(new SnakeUI(width));
-}
+             m_window(sf::VideoMode(width, height + 100), title.c_str()),
+             m_boardObjects({ new Snake(initialSnakeSize, pointRadius),
+                              new Food(pointRadius, width, height),
+                              new SnakeUI(width) }) {}
 
 Board::~Board()
 {
@@ -206,15 +203,12 @@ void GameEngine::CheckFood()
     if (snake->GetSnakeContainer().front().getPosition() ==
         food->GetFoodObj().getPosition())
     {
-        u_int16_t xPos = 0;
-        u_int16_t yPos = 0;
-
-        xPos = food->GetRandomXPosition();
-        yPos = food->GetRandomYPosition();
+        u_int16_t xPos = food->GetRandomXPosition();
+        u_int16_t yPos = food->GetRandomYPosition();
 
         for (sf::CircleShape& point : snake->GetSnakeContainer())
         {
-            while (point.getPosition().x == xPos || point.getPosition().y == yPos)
+            while (point.getPosition().x == xPos && point.getPosition().y == yPos)
             {
                 xPos = food->GetRandomXPosition();
                 yPos = food->GetRandomYPosition();
@@ -240,7 +234,7 @@ void GameEngine::CheckFood()
 void GameEngine::CheckDeath()
 {
     Snake *snake = static_cast<Snake *>(m_board.GetBoardObjects()[0]);
-    size_t size = snake->GetSnakeContainer().size();
+    size_t snakeSize = snake->GetSnakeContainer().size();
     auto frontPos = snake->GetSnakeContainer().front().getPosition();
 
     if (frontPos.x == m_board.GetWindow().getSize().x || frontPos.x >= 65500 ||
@@ -249,7 +243,7 @@ void GameEngine::CheckDeath()
         m_shouldRun = false;
     }
 
-    for (size_t i = 1; i < size; ++i)
+    for (size_t i = 1; i < snakeSize; ++i)
     {
         if (snake->GetSnakeContainer()[i].getPosition() == frontPos)
         {
@@ -314,10 +308,9 @@ void GameEngine::Run()
 
 void GameEngine::WriteScoreToDB(std::string username, std::string score)
 {
-
     std::string selectQuery = "SELECT score FROM score_table WHERE username = '" + username + "';";
     sqlite3_stmt* selectStmt;
-    int existingScore = 0;
+    u_int16_t existingScore = 0;
 
     sqlite3_open("highscores.db", &m_scoreDB);
 
