@@ -1,10 +1,5 @@
-/*****************************
-* Developer:      Idan Paz   *
-* Reviewer:       Shalev     *
-*****************************/
-
-#include <stdlib.h> /* for memory allocation */
-#include <assert.h> /* for validating inputs */
+#include <stdlib.h> 
+#include <assert.h> 
 
 #include "avl.h"
 

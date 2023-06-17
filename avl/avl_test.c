@@ -1,15 +1,8 @@
-/******************************
-* Developer:      Idan Paz    *
-* Reviewer:       Shalev      *
-* Version:        1.0         *   
-* Description:    AVL Test    *
-******************************/
+#include <stdio.h>     
+#include <stdlib.h>   
+#include <time.h>     
 
-#include <stdio.h>     /* for printing */
-#include <stdlib.h>    /* for rand */
-#include <time.h>      /* for srand */
-
-#include "avl.h"       /* API */
+#include "avl.h" 
 
 typedef struct node node_t;
 

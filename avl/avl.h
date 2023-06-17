@@ -1,11 +1,5 @@
-/*********************************************
-* Developer:      Idan Paz                   *
-* Reviewer:       Shalev                     *
-* Version:        1.0                        *   
-* Description:    API for avl.c              *
-**********************************************/
-#ifndef __OL134_AVL_H__
-#define __OL134_AVL_H__
+#ifndef __AVL_H__
+#define __AVL_H__
 
 #include <sys/types.h>
 
@@ -117,7 +111,7 @@ int AVLForEach(avl_t *avl, int (*action_func)(void *data, void *param), void *pa
 /*------------------------------------*/
 
 
-#endif /*  __OL134_AVL_H__ */
+#endif /*  __AVL_H__ */
 
 
 
