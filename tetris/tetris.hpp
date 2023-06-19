@@ -136,21 +136,23 @@ private:
     void HandleInputs(sf::Event& event);
     void GenerateNewPiece();
     void DisplayBoardPieces();
+    void DrawAllPieces();
+    void ScanRows();
+    void CheckDeath();
     bool IsOnOtherPiece();
     bool IsOnFloor();
     bool IsAsideOtherPiece();
     bool IsOnLeftEdge();
     bool IsOnRightEdge();
-    void DrawAllPieces();
-    void ScanRows();
     u_int16_t GetRandomShape();
-    void CheckDeath();
 
     Board m_board;
     u_int16_t m_boardWidth;
     u_int16_t m_boardHeight;
     u_int16_t m_frameTime;
-    bool m_shouldRun;
+    u_int16_t m_score;
+    u_int16_t m_level;
     std::vector<std::function<IShape *()> > m_shapeOptions;
     std::random_device m_rd;
+    bool m_shouldRun;
 };
