@@ -1,0 +1,11 @@
+To install sfml graphics library, execute the following commands:
+
+sudo apt install libsfml-dev
+
+To compile the game, write the following line in terminal:
+
+g++ tetris.cpp tetris_test.cpp -lsfml-graphics -lsfml-window -lsfml-system -o tetris
+
+To run the game, simply write:
+
+./tetris
