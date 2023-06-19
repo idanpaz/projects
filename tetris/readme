@@ -1,4 +1,4 @@
-To install sfml graphics library, execute the following commands:
+To install sfml graphics library, execute the following command:
 
 sudo apt install libsfml-dev
 
