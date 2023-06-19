@@ -2,7 +2,7 @@
 
 int main()
 {
-    GameEngine tetris(600, 800, "Tetris Game");
+    GameEngine tetris(400, 600, "Tetris Game");
     tetris.Run();
 
     return 0;

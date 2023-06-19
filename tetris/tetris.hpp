@@ -144,11 +144,13 @@ private:
     void DrawAllPieces();
     void ScanRows();
     u_int16_t GetRandomShape();
+    void CheckDeath();
 
     Board m_board;
     u_int16_t m_boardWidth;
     u_int16_t m_boardHeight;
     u_int16_t m_frameTime;
+    bool m_shouldRun;
     std::vector<std::function<IShape *()> > m_shapeOptions;
     std::random_device m_rd;
 };
