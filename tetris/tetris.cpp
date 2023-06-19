@@ -645,6 +645,11 @@ Board::~Board()
     {
         delete piece;
     }
+
+    if (m_currPiece)
+    {
+        delete m_currPiece;
+    }
 }
 
 sf::RenderWindow& Board::GetWindow() { return m_window; }
