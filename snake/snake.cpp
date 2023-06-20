@@ -173,25 +173,21 @@ GameEngine::GameEngine(u_int16_t width, u_int16_t height, std::string title,
                        m_dir(RIGHT), m_shouldRun(true), m_score(0), 
                        m_level(1), m_frameTime(100), m_username(username) {}
 
-void GameEngine::DisplayBoardObjects(sf::Clock& clock)
+void GameEngine::DisplayBoardObjects()
 {
-    if (clock.getElapsedTime().asMilliseconds() >= m_frameTime)
+    Snake *snake = static_cast<Snake *>(m_board.GetBoardObjects()[0]);
+
+    m_board.GetWindow().clear();
+
+    for (BoardObjects *boardObject : m_board.GetBoardObjects())
     {
-        Snake *snake = static_cast<Snake *>(m_board.GetBoardObjects()[0]);
-
-        m_board.GetWindow().clear();
-
-        for (BoardObjects *boardObject : m_board.GetBoardObjects())
-        {
-            boardObject->Draw(m_board.GetWindow());
-        }
-
-        snake->MoveSnake(m_dir);
-        snake->GetSnakeContainer().pop_back();
-
-        m_board.GetWindow().display();
-        clock.restart();
+        boardObject->Draw(m_board.GetWindow());
     }
+
+    snake->MoveSnake(m_dir);
+    snake->GetSnakeContainer().pop_back();
+
+    m_board.GetWindow().display();
 }
 
 void GameEngine::CheckFood()
@@ -297,11 +293,12 @@ void GameEngine::Run()
             }
         }
 
-        if (m_shouldRun)
+        if (m_shouldRun && clock.getElapsedTime().asMilliseconds() >= m_frameTime)
         {
-            DisplayBoardObjects(clock);
+            DisplayBoardObjects();
             CheckFood();
             CheckDeath();
+            clock.restart();
         }
     }
 }

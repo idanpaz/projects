@@ -97,7 +97,7 @@ public:
     void Run();
 
 private:
-    void DisplayBoardObjects(sf::Clock &clock);
+    void DisplayBoardObjects();
     void ChangeDir(sf::Event &event);
     void CheckFood();
     void CheckDeath();
