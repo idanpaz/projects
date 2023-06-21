@@ -118,13 +118,13 @@ private:
     void DrawAllPieces();
     void ScanRows();
     void CheckDeath();
+    void WriteScoreToDB(std::string username, std::string score);
     bool IsOnOtherPiece();
     bool IsOnFloor();
     bool IsAsideOtherPiece();
     bool IsOnLeftEdge();
     bool IsOnRightEdge();
     u_int16_t GetRandomShape();
-    void WriteScoreToDB(std::string username, std::string score);
 
     Board m_board;
     u_int16_t m_boardWidth;
@@ -133,7 +133,7 @@ private:
     u_int16_t m_score;
     u_int16_t m_level;
     std::string m_username;
-    std::vector<std::function<Shape *()> > m_shapeOptions;
+    std::vector<std::function<Shape *()> > m_shapeFactory;
     std::random_device m_rd;
     bool m_shouldRun;
     TetrisUI m_UI;

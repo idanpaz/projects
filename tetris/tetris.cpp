@@ -515,7 +515,7 @@ void Board::SetCurrPiece(Shape *shape) { m_currPiece = shape; }
 GameEngine::GameEngine(u_int16_t width, u_int16_t height, std::string title, std::string username) :
 m_board(width, height, title.c_str()), m_boardWidth(width), m_boardHeight(height),
 m_frameTime(200), m_score(0), m_level(1), m_shouldRun(true), m_username(username),
-m_shapeOptions({ []()->Shape * { return new LShape; },
+m_shapeFactory({ []()->Shape * { return new LShape; },
 []()->Shape * { return new SquareShape; }, []()->Shape * { return new PlusShape; },
 []()->Shape * { return new LineShape; }, []()->Shape * { return new SShape; }}),
 m_UI(m_board.GetWindow(), width) {}
@@ -591,7 +591,7 @@ void GameEngine::HandleInputs(sf::Event& event)
 
 void GameEngine::GenerateNewPiece()
 {
-    Shape *shape = m_shapeOptions[GetRandomShape()]();
+    Shape *shape = m_shapeFactory[GetRandomShape()]();
     m_board.SetCurrPiece(shape);
 }
 
@@ -620,15 +620,15 @@ bool GameEngine::IsOnOtherPiece()
     Shape *currPiece = m_board.GetCurrPiece();
     std::vector<Shape *>& staticPieces = m_board.GetShapesContainer();
 
-    for (u_int16_t s = 0; s < size; ++s) // runs on all staticPieces
+    for (u_int16_t s = 0; s < size; ++s) 
     {
-        for (u_int8_t i = Shape::ROWS; i > 0; --i) // runs on currPiece rows
+        for (u_int8_t i = Shape::ROWS; i > 0; --i) 
         {
-            for (u_int8_t j = 0; j < Shape::COLS; ++j) // runs on currPiece cols
+            for (u_int8_t j = 0; j < Shape::COLS; ++j) 
             {
-                for (u_int8_t k = 0; k < Shape::ROWS; ++k) // runs on currPiece from staticPieces rows
+                for (u_int8_t k = 0; k < Shape::ROWS; ++k) 
                 {
-                    for (u_int8_t p = 0; p < Shape::COLS; ++p) // runs on currPiece from staticPieces cols
+                    for (u_int8_t p = 0; p < Shape::COLS; ++p)
                     {
                         if (currPiece->GetMatrix()[i - 1][j].getFillColor() != sf::Color::Black &&
                             staticPieces[s]->GetMatrix()[k][p].getFillColor() != sf::Color::Black &&
@@ -835,7 +835,7 @@ void GameEngine::ScanRows()
 u_int16_t GameEngine::GetRandomShape()
 {
     std::mt19937 gen(m_rd());
-    std::uniform_int_distribution<u_int16_t> distrib(0, m_shapeOptions.size() - 1);
+    std::uniform_int_distribution<u_int16_t> distrib(0, m_shapeFactory.size() - 1);
 
     return distrib(gen);
 }
