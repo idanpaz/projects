@@ -1,60 +1,64 @@
 #include <SFML/Graphics.hpp>
 #include <sqlite3.h>
 #include <sys/types.h>
-#include <vector>
-#include <memory>
-#include <functional>
-#include <random>
+#include <vector>      
+#include <functional>    
+#include <random>         
 
-class IShape
+class Shape
 {
 public:
     static const u_int8_t SQSIZE = 25;
-    virtual ~IShape();
+    static const u_int8_t ROWS = 3;
+    static const u_int8_t COLS = 3;
+    static const u_int16_t INITIAL_XPOS = 175;
+    static const u_int16_t INITIAL_YPOS = 50;
+
+    virtual ~Shape();
     virtual void RotateLeft() = 0;
 
     void MoveLeft();
     void MoveRight();
     void MoveDown();
     void Draw(sf::RenderWindow& window);
-    sf::RectangleShape (&GetMatrix())[3][3];
+    sf::RectangleShape (&GetMatrix())[ROWS][COLS];
 
 protected:
-    IShape();
+    Shape();
 
-    sf::RectangleShape m_matrix[3][3];
+    sf::RectangleShape m_matrix[ROWS][COLS];
     u_int16_t m_currOrrientation;
 };
 
-class LShape : public IShape
+class LShape : public Shape
 {
 public:
     explicit LShape();
     void RotateLeft() override;
 };
 
-class SquareShape : public IShape
+class SquareShape : public Shape
 {
 public:
     explicit SquareShape();
     void RotateLeft() override;
 };
 
-class PlusShape : public IShape
+class PlusShape : public Shape
 {
 public:
     explicit PlusShape();
     void RotateLeft() override;
 };
 
-class LineShape : public IShape
+class LineShape : public Shape
 {
 public:
     explicit LineShape();
     void RotateLeft() override;
 };
 
-class SShape : public IShape
+class SShape : public Shape
 {
 public:
     explicit SShape();
@@ -88,15 +92,15 @@ public:
     ~Board();
 
     sf::RenderWindow& GetWindow();
-    std::vector<IShape *>& GetShapesContainer();
-    IShape *GetCurrPiece();
+    std::vector<Shape *>& GetShapesContainer();
+    Shape *GetCurrPiece();
 
-    void SetCurrPiece(IShape *shape);
+    void SetCurrPiece(Shape *shape);
 
 private:
     sf::RenderWindow m_window;
-    std::vector<IShape *> m_staticPieces;
-    IShape *m_currPiece;
+    std::vector<Shape *> m_staticPieces;
+    Shape *m_currPiece;
 };
 
 class GameEngine
@@ -129,7 +133,7 @@ private:
     u_int16_t m_score;
     u_int16_t m_level;
     std::string m_username;
-    std::vector<std::function<IShape *()> > m_shapeOptions;
+    std::vector<std::function<Shape *()> > m_shapeOptions;
     std::random_device m_rd;
     bool m_shouldRun;
     TetrisUI m_UI;

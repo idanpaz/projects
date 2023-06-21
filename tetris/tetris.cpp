@@ -2,16 +2,52 @@
 
 #include "tetris.hpp"
 
-IShape::IShape() : m_currOrrientation(0) {}
-IShape::~IShape() {}
+Shape::Shape() : m_currOrrientation(0) {}
+Shape::~Shape() {}
 
-void IShape::Draw(sf::RenderWindow& window)
+void Shape::MoveLeft() 
+{
+    for (u_int8_t i = 0; i < ROWS; ++i)
+    {
+        for (u_int8_t j = 0; j < COLS; ++j)
+        {
+            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x - Shape::SQSIZE, 
+                                       m_matrix[i][j].getPosition().y);
+        }
+    }
+}
+
+void Shape::MoveRight() 
+{
+    for (u_int8_t i = 0; i < ROWS; ++i)
+    {
+        for (u_int8_t j = 0; j < COLS; ++j)
+        {
+            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x + Shape::SQSIZE, 
+                                       m_matrix[i][j].getPosition().y);
+        }
+    }
+}
+
+void Shape::MoveDown()
+{
+    for (u_int8_t i = 0; i < ROWS; ++i)
+    {
+        for (u_int8_t j = 0; j < COLS; ++j)
+        {
+            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x, 
+                                       m_matrix[i][j].getPosition().y + Shape::SQSIZE);
+        }
+    }   
+}
+
+void Shape::Draw(sf::RenderWindow& window)
 {
     u_int8_t i = 0, j = 0;
 
-    for (i = 0; i < 3; ++i)
+    for (i = 0; i < ROWS; ++i)
     {
-        for (j = 0; j < 3; ++j)
+        for (j = 0; j < COLS; ++j)
         {
             if (m_matrix[i][j].getFillColor() != sf::Color::Black)
                 window.draw(m_matrix[i][j]);
@@ -19,48 +55,12 @@ void IShape::Draw(sf::RenderWindow& window)
     }    
 }
 
-void IShape::MoveLeft() 
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x - IShape::SQSIZE, 
-                                       m_matrix[i][j].getPosition().y);
-        }
-    }
-}
-
-void IShape::MoveRight() 
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x + IShape::SQSIZE, 
-                                       m_matrix[i][j].getPosition().y);
-        }
-    }
-}
-
-void IShape::MoveDown()
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x, 
-                                       m_matrix[i][j].getPosition().y + IShape::SQSIZE);
-        }
-    }   
-}
-
-sf::RectangleShape (&IShape::GetMatrix())[3][3] { return m_matrix; }
+sf::RectangleShape (&Shape::GetMatrix())[ROWS][COLS] { return m_matrix; }
 
 LShape::LShape()
 {
-    u_int16_t x = 175;
-    u_int16_t y = 50;
+    u_int16_t x = INITIAL_XPOS;
+    u_int16_t y = INITIAL_YPOS;
     
     m_matrix[0][0].setFillColor(sf::Color::Blue);
     m_matrix[0][1].setFillColor(sf::Color::Black);
@@ -72,19 +72,19 @@ LShape::LShape()
     m_matrix[2][1].setFillColor(sf::Color::Blue);
     m_matrix[2][2].setFillColor(sf::Color::Black);
 
-    for (u_int8_t i = 0; i < 3; ++i)
+    for (u_int8_t i = 0; i < ROWS; ++i)
     {
-        for (u_int8_t j = 0; j < 3; ++j)
+        for (u_int8_t j = 0; j < COLS; ++j)
         {
             m_matrix[i][j].setOutlineColor(sf::Color::Black);
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += IShape::SQSIZE;
+            x += Shape::SQSIZE;
         }
 
-        y += IShape::SQSIZE;
-        x = 175;
+        y += Shape::SQSIZE;
+        x = INITIAL_XPOS;
     }
 }
 
@@ -155,8 +155,8 @@ void LShape::RotateLeft()
 
 SquareShape::SquareShape() 
 {
-    u_int16_t x = 175;
-    u_int16_t y = 50;
+    u_int16_t x = INITIAL_XPOS;
+    u_int16_t y = INITIAL_YPOS;
     
     m_matrix[0][0].setFillColor(sf::Color::Black);
     m_matrix[0][1].setFillColor(sf::Color::Black);
@@ -168,19 +168,19 @@ SquareShape::SquareShape()
     m_matrix[2][1].setFillColor(sf::Color::Red);
     m_matrix[2][2].setFillColor(sf::Color::Black);
 
-    for (u_int8_t i = 0; i < 3; ++i)
+    for (u_int8_t i = 0; i < ROWS; ++i)
     {
-        for (u_int8_t j = 0; j < 3; ++j)
+        for (u_int8_t j = 0; j < COLS; ++j)
         {
             m_matrix[i][j].setOutlineColor(sf::Color::Black);
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += IShape::SQSIZE;
+            x += Shape::SQSIZE;
         }
 
-        y += IShape::SQSIZE;
-        x = 175;
+        y += Shape::SQSIZE;
+        x = INITIAL_XPOS;
     }
 }
 
@@ -188,8 +188,8 @@ void SquareShape::RotateLeft() {}
 
 PlusShape::PlusShape()
 {
-    u_int16_t x = 175;
-    u_int16_t y = 50;
+    u_int16_t x = INITIAL_XPOS;
+    u_int16_t y = INITIAL_YPOS;
     
     m_matrix[0][0].setFillColor(sf::Color::Black);
     m_matrix[0][1].setFillColor(sf::Color::Black);
@@ -201,19 +201,19 @@ PlusShape::PlusShape()
     m_matrix[2][1].setFillColor(sf::Color::Yellow);
     m_matrix[2][2].setFillColor(sf::Color::Yellow);
 
-    for (u_int8_t i = 0; i < 3; ++i)
+    for (u_int8_t i = 0; i < ROWS; ++i)
     {
-        for (u_int8_t j = 0; j < 3; ++j)
+        for (u_int8_t j = 0; j < COLS; ++j)
         {
             m_matrix[i][j].setOutlineColor(sf::Color::Black);
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += IShape::SQSIZE;
+            x += Shape::SQSIZE;
         }
 
-        y += IShape::SQSIZE;
-        x = 175;
+        y += Shape::SQSIZE;
+        x = INITIAL_XPOS;
     }
 }
 
@@ -284,8 +284,8 @@ void PlusShape::RotateLeft()
 
 LineShape::LineShape()
 {
-    u_int16_t x = 175;
-    u_int16_t y = 50;
+    u_int16_t x = INITIAL_XPOS;
+    u_int16_t y = INITIAL_YPOS;
     
     m_matrix[0][0].setFillColor(sf::Color::Black);
     m_matrix[0][1].setFillColor(sf::Color::Green);
@@ -297,19 +297,19 @@ LineShape::LineShape()
     m_matrix[2][1].setFillColor(sf::Color::Green);
     m_matrix[2][2].setFillColor(sf::Color::Black);   
 
-    for (u_int8_t i = 0; i < 3; ++i)
+    for (u_int8_t i = 0; i < ROWS; ++i)
     {
-        for (u_int8_t j = 0; j < 3; ++j)
+        for (u_int8_t j = 0; j < COLS; ++j)
         {
             m_matrix[i][j].setOutlineColor(sf::Color::Black);
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += IShape::SQSIZE;
+            x += Shape::SQSIZE;
         }
 
-        y += IShape::SQSIZE;
-        x = 175;
+        y += Shape::SQSIZE;
+        x = INITIAL_XPOS;
     }
 }
 
@@ -354,8 +354,8 @@ void LineShape::RotateLeft()
 
 SShape::SShape()
 {
-    u_int16_t x = 175;
-    u_int16_t y = 50;
+    u_int16_t x = INITIAL_XPOS;
+    u_int16_t y = INITIAL_YPOS;
     
     m_matrix[0][0].setFillColor(sf::Color::Magenta);
     m_matrix[0][1].setFillColor(sf::Color::Black);
@@ -367,19 +367,19 @@ SShape::SShape()
     m_matrix[2][1].setFillColor(sf::Color::Magenta);
     m_matrix[2][2].setFillColor(sf::Color::Black);   
 
-    for (u_int8_t i = 0; i < 3; ++i)
+    for (u_int8_t i = 0; i < ROWS; ++i)
     {
-        for (u_int8_t j = 0; j < 3; ++j)
+        for (u_int8_t j = 0; j < COLS; ++j)
         {
             m_matrix[i][j].setOutlineColor(sf::Color::Black);
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += IShape::SQSIZE;
+            x += Shape::SQSIZE;
         }
 
-        y += IShape::SQSIZE;
-        x = 175;
+        y += Shape::SQSIZE;
+        x = INITIAL_XPOS;
     }
 }
 
@@ -496,7 +496,7 @@ m_window(sf::VideoMode(width, height), title.c_str()), m_currPiece(nullptr)
 
 Board::~Board()
 {
-    for (IShape *piece : m_staticPieces)
+    for (Shape *piece : m_staticPieces)
     {
         delete piece;
     }
@@ -508,16 +508,16 @@ Board::~Board()
 }
 
 sf::RenderWindow& Board::GetWindow() { return m_window; }
-std::vector<IShape *>& Board::GetShapesContainer() { return m_staticPieces; }
-IShape * Board::GetCurrPiece() { return m_currPiece; }
-void Board::SetCurrPiece(IShape *shape) { m_currPiece = shape; }
+std::vector<Shape *>& Board::GetShapesContainer() { return m_staticPieces; }
+Shape * Board::GetCurrPiece() { return m_currPiece; }
+void Board::SetCurrPiece(Shape *shape) { m_currPiece = shape; }
 
 GameEngine::GameEngine(u_int16_t width, u_int16_t height, std::string title, std::string username) :
 m_board(width, height, title.c_str()), m_boardWidth(width), m_boardHeight(height),
 m_frameTime(200), m_score(0), m_level(1), m_shouldRun(true), m_username(username),
-m_shapeOptions({ []()->IShape * { return new LShape; },
-[]()->IShape * { return new SquareShape; }, []()->IShape * { return new PlusShape; },
-[]()->IShape * { return new LineShape; }, []()->IShape * { return new SShape; }}),
+m_shapeOptions({ []()->Shape * { return new LShape; },
+[]()->Shape * { return new SquareShape; }, []()->Shape * { return new PlusShape; },
+[]()->Shape * { return new LineShape; }, []()->Shape * { return new SShape; }}),
 m_UI(m_board.GetWindow(), width) {}
 
 void GameEngine::Run()
@@ -591,20 +591,20 @@ void GameEngine::HandleInputs(sf::Event& event)
 
 void GameEngine::GenerateNewPiece()
 {
-    IShape *shape = m_shapeOptions[GetRandomShape()]();
+    Shape *shape = m_shapeOptions[GetRandomShape()]();
     m_board.SetCurrPiece(shape);
 }
 
 bool GameEngine::IsOnFloor()
 {
-    IShape *currPiece = m_board.GetCurrPiece();
+    Shape *currPiece = m_board.GetCurrPiece();
 
     if (currPiece)
     {
-        for (u_int8_t i = 0; i < 3; ++i)
+        for (u_int8_t i = 0; i < Shape::COLS; ++i)
         {
             if (currPiece->GetMatrix()[2][i].getFillColor() != sf::Color::Black && 
-                currPiece->GetMatrix()[2][i].getPosition().y == m_boardHeight - IShape::SQSIZE)
+                currPiece->GetMatrix()[2][i].getPosition().y == m_boardHeight - Shape::SQSIZE)
             {
                 return true;
             }
@@ -617,24 +617,24 @@ bool GameEngine::IsOnFloor()
 bool GameEngine::IsOnOtherPiece()
 {
     u_int16_t size = m_board.GetShapesContainer().size();
-    IShape *currPiece = m_board.GetCurrPiece();
-    std::vector<IShape *>& staticPieces = m_board.GetShapesContainer();
+    Shape *currPiece = m_board.GetCurrPiece();
+    std::vector<Shape *>& staticPieces = m_board.GetShapesContainer();
 
     for (u_int16_t s = 0; s < size; ++s) // runs on all staticPieces
     {
-        for (u_int8_t i = 3; i > 0; --i) // runs on currPiece rows
+        for (u_int8_t i = Shape::ROWS; i > 0; --i) // runs on currPiece rows
         {
-            for (u_int8_t j = 0; j < 3; ++j) // runs on currPiece cols
+            for (u_int8_t j = 0; j < Shape::COLS; ++j) // runs on currPiece cols
             {
-                for (u_int8_t k = 0; k < 3; ++k) // runs on currPiece from staticPieces rows
+                for (u_int8_t k = 0; k < Shape::ROWS; ++k) // runs on currPiece from staticPieces rows
                 {
-                    for (u_int8_t p = 0; p < 3; ++p) // runs on currPiece from staticPieces cols
+                    for (u_int8_t p = 0; p < Shape::COLS; ++p) // runs on currPiece from staticPieces cols
                     {
                         if (currPiece->GetMatrix()[i - 1][j].getFillColor() != sf::Color::Black &&
                             staticPieces[s]->GetMatrix()[k][p].getFillColor() != sf::Color::Black &&
                             currPiece->GetMatrix()[i - 1][j].getPosition().x ==
                             staticPieces[s]->GetMatrix()[k][p].getPosition().x && 
-                            currPiece->GetMatrix()[i - 1][j].getPosition().y + IShape::SQSIZE ==
+                            currPiece->GetMatrix()[i - 1][j].getPosition().y + Shape::SQSIZE ==
                             staticPieces[s]->GetMatrix()[k][p].getPosition().y)
                         {
                             return true;
@@ -651,26 +651,26 @@ bool GameEngine::IsOnOtherPiece()
 bool GameEngine::IsAsideOtherPiece()
 {
     u_int16_t size = m_board.GetShapesContainer().size();
-    IShape *currPiece = m_board.GetCurrPiece();
-    std::vector<IShape *>& staticPieces = m_board.GetShapesContainer();
+    Shape *currPiece = m_board.GetCurrPiece();
+    std::vector<Shape *>& staticPieces = m_board.GetShapesContainer();
 
     for (u_int16_t s = 0; s < size; ++s) 
     {
-        for (u_int8_t i = 0; i < 3; ++i) 
+        for (u_int8_t i = 0; i < Shape::ROWS; ++i) 
         {
-            for (u_int8_t j = 0; j < 3; ++j) 
+            for (u_int8_t j = 0; j < Shape::COLS; ++j) 
             {
-                for (u_int8_t k = 0; k < 3; ++k) 
+                for (u_int8_t k = 0; k < Shape::ROWS; ++k) 
                 {
-                    for (u_int8_t p = 0; p < 3; ++p) 
+                    for (u_int8_t p = 0; p < Shape::COLS; ++p) 
                     {
                         if (currPiece->GetMatrix()[i][j].getFillColor() != sf::Color::Black &&
                             staticPieces[s]->GetMatrix()[k][p].getFillColor() != sf::Color::Black &&
                             currPiece->GetMatrix()[i][j].getPosition().y ==
                             staticPieces[s]->GetMatrix()[k][p].getPosition().y && 
-                            (currPiece->GetMatrix()[i][j].getPosition().x + IShape::SQSIZE ==
+                            (currPiece->GetMatrix()[i][j].getPosition().x + Shape::SQSIZE ==
                             staticPieces[s]->GetMatrix()[k][p].getPosition().x || 
-                            currPiece->GetMatrix()[i][j].getPosition().x - IShape::SQSIZE ==
+                            currPiece->GetMatrix()[i][j].getPosition().x - Shape::SQSIZE ==
                             staticPieces[s]->GetMatrix()[k][p].getPosition().x))
                         {
                             return true;
@@ -686,9 +686,9 @@ bool GameEngine::IsAsideOtherPiece()
 
 bool GameEngine::IsOnLeftEdge()
 {
-    for (u_int8_t i = 0; i < 3; ++i)
+    for (u_int8_t i = 0; i < Shape::ROWS; ++i)
     {
-        for (u_int8_t j = 0; j < 3; ++j)
+        for (u_int8_t j = 0; j < Shape::COLS; ++j)
         {
             if (m_board.GetCurrPiece()->GetMatrix()[i][j].getFillColor() != sf::Color::Black && 
                 m_board.GetCurrPiece()->GetMatrix()[i][j].getPosition().x == 0)
@@ -703,12 +703,12 @@ bool GameEngine::IsOnLeftEdge()
 
 bool GameEngine::IsOnRightEdge()
 {
-    for (u_int8_t i = 0; i < 3; ++i)
+    for (u_int8_t i = 0; i < Shape::ROWS; ++i)
     {
-        for (u_int8_t j = 0; j < 3; ++j)
+        for (u_int8_t j = 0; j < Shape::COLS; ++j)
         {
             if (m_board.GetCurrPiece()->GetMatrix()[i][j].getFillColor() != sf::Color::Black && 
-                m_board.GetCurrPiece()->GetMatrix()[i][j].getPosition().x == m_boardWidth - IShape::SQSIZE)
+                m_board.GetCurrPiece()->GetMatrix()[i][j].getPosition().x == m_boardWidth - Shape::SQSIZE)
             {
                 return true;
             }
@@ -727,7 +727,7 @@ void GameEngine::DrawAllPieces()
         m_board.GetCurrPiece()->Draw(m_board.GetWindow());
     }
 
-    for (IShape *piece : m_board.GetShapesContainer())
+    for (Shape *piece : m_board.GetShapesContainer())
     {
         piece->Draw(m_board.GetWindow());
     }
@@ -764,9 +764,9 @@ void GameEngine::ScanRows()
 
     for (u_int16_t s = 0; s < size; ++s)
     {
-        for (u_int8_t i = 0; i < 3; ++i)
+        for (u_int8_t i = 0; i < Shape::ROWS; ++i)
         {
-            for (u_int8_t j = 0; j < 3; ++j)
+            for (u_int8_t j = 0; j < Shape::COLS; ++j)
             {
                 if (m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getFillColor() != sf::Color::Black)
                 {
@@ -777,7 +777,7 @@ void GameEngine::ScanRows()
         }
     }
 
-    for (u_int16_t i = IShape::SQSIZE; i < m_boardWidth; i += IShape::SQSIZE)
+    for (u_int16_t i = Shape::SQSIZE; i < m_boardWidth; i += Shape::SQSIZE)
     {
         sum += i;
     }
@@ -791,9 +791,9 @@ void GameEngine::ScanRows()
 
             for (u_int16_t s = 0; s < size; ++s)
             {
-                for (u_int8_t j = 0; j < 3; ++j)
+                for (u_int8_t j = 0; j < Shape::ROWS; ++j)
                 {
-                    for (u_int8_t k = 0; k < 3; ++k)
+                    for (u_int8_t k = 0; k < Shape::COLS; ++k)
                     {
                         if (m_board.GetShapesContainer()[s]->GetMatrix()[j][k].getPosition().y == i.first)
                         {
@@ -817,15 +817,15 @@ void GameEngine::ScanRows()
 
     for (u_int16_t s = 0; s < size; ++s)
     {
-        for (u_int8_t i = 0; i < 3; ++i)
+        for (u_int8_t i = 0; i < Shape::ROWS; ++i)
         {
-            for (u_int8_t j = 0; j < 3; ++j)
+            for (u_int8_t j = 0; j < Shape::COLS; ++j)
             {
                 if (m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getPosition().y < fullRowHeight)
                 {
                     m_board.GetShapesContainer()[s]->GetMatrix()[i][j].setPosition(
                     m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getPosition().x,
-                    m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getPosition().y + numRowsToErase*IShape::SQSIZE);
+                    m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getPosition().y + numRowsToErase*Shape::SQSIZE);
                 }
             }
         }
@@ -846,11 +846,11 @@ void GameEngine::CheckDeath()
 
     for (u_int16_t s = 0; s < size; ++s)
     {
-        for (u_int8_t i = 0; i < 3; ++i)
+        for (u_int8_t i = 0; i < Shape::ROWS; ++i)
         {
-            for (u_int8_t j = 0; j < 3; ++j)
+            for (u_int8_t j = 0; j < Shape::COLS; ++j)
             {
-                if (m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getPosition().y == 50 &&
+                if (m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getPosition().y == Shape::INITIAL_YPOS &&
                     m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getFillColor() != sf::Color::Black)
                 {
                     m_shouldRun = false;
