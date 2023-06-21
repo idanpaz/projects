@@ -2,9 +2,62 @@
 
 #include "tetris.hpp"
 
-#define SQSIZE 25
+IShape::IShape() : m_currOrrientation(0) {}
+IShape::~IShape() {}
 
-LShape::LShape() : m_currOrrientation(0)
+void IShape::Draw(sf::RenderWindow& window)
+{
+    u_int8_t i = 0, j = 0;
+
+    for (i = 0; i < 3; ++i)
+    {
+        for (j = 0; j < 3; ++j)
+        {
+            if (m_matrix[i][j].getFillColor() != sf::Color::Black)
+                window.draw(m_matrix[i][j]);
+        }
+    }    
+}
+
+void IShape::MoveLeft() 
+{
+    for (u_int8_t i = 0; i < 3; ++i)
+    {
+        for (u_int8_t j = 0; j < 3; ++j)
+        {
+            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x - IShape::SQSIZE, 
+                                       m_matrix[i][j].getPosition().y);
+        }
+    }
+}
+
+void IShape::MoveRight() 
+{
+    for (u_int8_t i = 0; i < 3; ++i)
+    {
+        for (u_int8_t j = 0; j < 3; ++j)
+        {
+            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x + IShape::SQSIZE, 
+                                       m_matrix[i][j].getPosition().y);
+        }
+    }
+}
+
+void IShape::MoveDown()
+{
+    for (u_int8_t i = 0; i < 3; ++i)
+    {
+        for (u_int8_t j = 0; j < 3; ++j)
+        {
+            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x, 
+                                       m_matrix[i][j].getPosition().y + IShape::SQSIZE);
+        }
+    }   
+}
+
+sf::RectangleShape (&IShape::GetMatrix())[3][3] { return m_matrix; }
+
+LShape::LShape()
 {
     u_int16_t x = 175;
     u_int16_t y = 0;
@@ -27,25 +80,11 @@ LShape::LShape() : m_currOrrientation(0)
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += SQSIZE;
+            x += IShape::SQSIZE;
         }
 
-        y += SQSIZE;
+        y += IShape::SQSIZE;
         x = 175;
-    }
-}
-
-void LShape::Draw(sf::RenderWindow& window)
-{
-    u_int8_t i = 0, j = 0;
-
-    for (i = 0; i < 3; ++i)
-    {
-        for (j = 0; j < 3; ++j)
-        {
-            if (m_matrix[i][j].getFillColor() != sf::Color::Black)
-                window.draw(m_matrix[i][j]);
-        }
     }
 }
 
@@ -114,42 +153,6 @@ void LShape::RotateLeft()
     }
 }
 
-void LShape::MoveLeft() 
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x - SQSIZE, 
-                                       m_matrix[i][j].getPosition().y);
-        }
-    }
-}
-
-void LShape::MoveRight() 
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x + SQSIZE, 
-                                       m_matrix[i][j].getPosition().y);
-        }
-    }
-}
-
-void LShape::MoveDown()
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x, 
-                                       m_matrix[i][j].getPosition().y + SQSIZE);
-        }
-    }   
-}
-
 SquareShape::SquareShape() 
 {
     u_int16_t x = 175;
@@ -173,67 +176,17 @@ SquareShape::SquareShape()
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += SQSIZE;
+            x += IShape::SQSIZE;
         }
 
-        y += SQSIZE;
+        y += IShape::SQSIZE;
         x = 175;
-    }
-}
-
-void SquareShape::Draw(sf::RenderWindow& window)
-{
-    u_int8_t i = 0, j = 0;
-
-    for (i = 0; i < 3; ++i)
-    {
-        for (j = 0; j < 3; ++j)
-        {
-            if (m_matrix[i][j].getFillColor() != sf::Color::Black)
-                window.draw(m_matrix[i][j]);
-        }
     }
 }
 
 void SquareShape::RotateLeft() {}
 
-void SquareShape::MoveLeft() 
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x - SQSIZE, 
-                                       m_matrix[i][j].getPosition().y);
-        }
-    }
-}
-
-void SquareShape::MoveRight() 
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x + SQSIZE, 
-                                       m_matrix[i][j].getPosition().y);
-        }
-    }
-}
-
-void SquareShape::MoveDown()
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x, 
-                                       m_matrix[i][j].getPosition().y + SQSIZE);
-        }
-    }   
-}
-
-PlusShape::PlusShape() : m_currOrrientation(0)
+PlusShape::PlusShape()
 {
     u_int16_t x = 175;
     u_int16_t y = 0;
@@ -256,25 +209,11 @@ PlusShape::PlusShape() : m_currOrrientation(0)
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += SQSIZE;
+            x += IShape::SQSIZE;
         }
 
-        y += SQSIZE;
+        y += IShape::SQSIZE;
         x = 175;
-    }
-}
-
-void PlusShape::Draw(sf::RenderWindow& window)
-{
-    u_int8_t i = 0, j = 0;
-
-    for (i = 0; i < 3; ++i)
-    {
-        for (j = 0; j < 3; ++j)
-        {
-            if (m_matrix[i][j].getFillColor() != sf::Color::Black)
-                window.draw(m_matrix[i][j]);
-        }
     }
 }
 
@@ -343,43 +282,7 @@ void PlusShape::RotateLeft()
     }
 }
 
-void PlusShape::MoveLeft() 
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x - SQSIZE, 
-                                       m_matrix[i][j].getPosition().y);
-        }
-    }
-}
-
-void PlusShape::MoveRight() 
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x + SQSIZE, 
-                                       m_matrix[i][j].getPosition().y);
-        }
-    }
-}
-
-void PlusShape::MoveDown()
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x, 
-                                       m_matrix[i][j].getPosition().y + SQSIZE);
-        }
-    }   
-}
-
-LineShape::LineShape() : m_currOrrientation(0)
+LineShape::LineShape()
 {
     u_int16_t x = 175;
     u_int16_t y = 0;
@@ -402,25 +305,11 @@ LineShape::LineShape() : m_currOrrientation(0)
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += SQSIZE;
+            x += IShape::SQSIZE;
         }
 
-        y += SQSIZE;
+        y += IShape::SQSIZE;
         x = 175;
-    }
-}
-
-void LineShape::Draw(sf::RenderWindow& window)
-{
-    u_int8_t i = 0, j = 0;
-
-    for (i = 0; i < 3; ++i)
-    {
-        for (j = 0; j < 3; ++j)
-        {
-            if (m_matrix[i][j].getFillColor() != sf::Color::Black)
-                window.draw(m_matrix[i][j]);
-        }
     }
 }
 
@@ -463,43 +352,7 @@ void LineShape::RotateLeft()
     }
 }
 
-void LineShape::MoveLeft() 
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x - SQSIZE, 
-                                       m_matrix[i][j].getPosition().y);
-        }
-    }
-}
-
-void LineShape::MoveRight() 
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x + SQSIZE, 
-                                       m_matrix[i][j].getPosition().y);
-        }
-    }
-}
-
-void LineShape::MoveDown()
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x, 
-                                       m_matrix[i][j].getPosition().y + SQSIZE);
-        }
-    }   
-}
-
-SShape::SShape() : m_currOrrientation(0)
+SShape::SShape()
 {
     u_int16_t x = 175;
     u_int16_t y = 0;
@@ -522,25 +375,11 @@ SShape::SShape() : m_currOrrientation(0)
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += SQSIZE;
+            x += IShape::SQSIZE;
         }
 
-        y += SQSIZE;
+        y += IShape::SQSIZE;
         x = 175;
-    }
-}
-
-void SShape::Draw(sf::RenderWindow& window)
-{
-    u_int8_t i = 0, j = 0;
-
-    for (i = 0; i < 3; ++i)
-    {
-        for (j = 0; j < 3; ++j)
-        {
-            if (m_matrix[i][j].getFillColor() != sf::Color::Black)
-                window.draw(m_matrix[i][j]);
-        }
     }
 }
 
@@ -609,44 +448,11 @@ void SShape::RotateLeft()
     }
 }
 
-void SShape::MoveLeft() 
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x - SQSIZE, 
-                                       m_matrix[i][j].getPosition().y);
-        }
-    }
-}
-
-void SShape::MoveRight() 
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x + SQSIZE, 
-                                       m_matrix[i][j].getPosition().y);
-        }
-    }
-}
-
-void SShape::MoveDown()
-{
-    for (u_int8_t i = 0; i < 3; ++i)
-    {
-        for (u_int8_t j = 0; j < 3; ++j)
-        {
-            m_matrix[i][j].setPosition(m_matrix[i][j].getPosition().x, 
-                                       m_matrix[i][j].getPosition().y + SQSIZE);
-        }
-    }   
-}
-
 Board::Board(u_int16_t width, u_int16_t height, std::string title) :
-m_window(sf::VideoMode(width, height), title.c_str()), m_currPiece(nullptr) {}
+m_window(sf::VideoMode(width, height), title.c_str()), m_currPiece(nullptr)
+{
+    m_window.setFramerateLimit(50);
+}
 
 Board::~Board()
 {
@@ -705,6 +511,7 @@ void GameEngine::Run()
             ScanRows();
             CheckDeath();
 
+
             clock.restart();
         }
     }
@@ -756,7 +563,7 @@ bool GameEngine::IsOnFloor()
         for (u_int8_t i = 0; i < 3; ++i)
         {
             if (currPiece->GetMatrix()[2][i].getFillColor() != sf::Color::Black && 
-                currPiece->GetMatrix()[2][i].getPosition().y == m_boardHeight - SQSIZE)
+                currPiece->GetMatrix()[2][i].getPosition().y == m_boardHeight - IShape::SQSIZE)
             {
                 return true;
             }
@@ -786,7 +593,7 @@ bool GameEngine::IsOnOtherPiece()
                             staticPieces[s]->GetMatrix()[k][p].getFillColor() != sf::Color::Black &&
                             currPiece->GetMatrix()[i - 1][j].getPosition().x ==
                             staticPieces[s]->GetMatrix()[k][p].getPosition().x && 
-                            currPiece->GetMatrix()[i - 1][j].getPosition().y + SQSIZE ==
+                            currPiece->GetMatrix()[i - 1][j].getPosition().y + IShape::SQSIZE ==
                             staticPieces[s]->GetMatrix()[k][p].getPosition().y)
                         {
                             return true;
@@ -820,9 +627,9 @@ bool GameEngine::IsAsideOtherPiece()
                             staticPieces[s]->GetMatrix()[k][p].getFillColor() != sf::Color::Black &&
                             currPiece->GetMatrix()[i][j].getPosition().y ==
                             staticPieces[s]->GetMatrix()[k][p].getPosition().y && 
-                            (currPiece->GetMatrix()[i][j].getPosition().x + SQSIZE ==
+                            (currPiece->GetMatrix()[i][j].getPosition().x + IShape::SQSIZE ==
                             staticPieces[s]->GetMatrix()[k][p].getPosition().x || 
-                            currPiece->GetMatrix()[i][j].getPosition().x - SQSIZE ==
+                            currPiece->GetMatrix()[i][j].getPosition().x - IShape::SQSIZE ==
                             staticPieces[s]->GetMatrix()[k][p].getPosition().x))
                         {
                             return true;
@@ -860,7 +667,7 @@ bool GameEngine::IsOnRightEdge()
         for (u_int8_t j = 0; j < 3; ++j)
         {
             if (m_board.GetCurrPiece()->GetMatrix()[i][j].getFillColor() != sf::Color::Black && 
-                m_board.GetCurrPiece()->GetMatrix()[i][j].getPosition().x == m_boardWidth - SQSIZE)
+                m_board.GetCurrPiece()->GetMatrix()[i][j].getPosition().x == m_boardWidth - IShape::SQSIZE)
             {
                 return true;
             }
@@ -910,6 +717,7 @@ void GameEngine::ScanRows()
     std::unordered_map<u_int16_t, u_int16_t> map;
     u_int16_t fullRowHeight = 0;
     u_int8_t numRowsToErase = 0;
+    u_int16_t sum = 0;
 
     for (u_int16_t s = 0; s < size; ++s)
     {
@@ -926,9 +734,14 @@ void GameEngine::ScanRows()
         }
     }
 
-    for (auto i : map)
+    for (u_int16_t i = IShape::SQSIZE; i < m_boardWidth; i += IShape::SQSIZE)
     {
-        if (i.second == 3000)
+        sum += i;
+    }
+
+    for (std::pair<const u_int16_t, u_int16_t> i : map)
+    {
+        if (i.second == sum)
         {
             fullRowHeight = i.first;
             ++numRowsToErase;
@@ -967,7 +780,7 @@ void GameEngine::ScanRows()
                 {
                     m_board.GetShapesContainer()[s]->GetMatrix()[i][j].setPosition(
                     m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getPosition().x,
-                    m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getPosition().y + numRowsToErase*SQSIZE);
+                    m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getPosition().y + numRowsToErase*IShape::SQSIZE);
                 }
             }
         }

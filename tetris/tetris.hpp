@@ -8,103 +8,56 @@
 class IShape
 {
 public:
-    virtual ~IShape() {}
-    virtual void Draw(sf::RenderWindow& window) = 0;
-
+    static const u_int8_t SQSIZE = 25;
+    virtual ~IShape();
     virtual void RotateLeft() = 0;
-    virtual void MoveLeft() = 0;
-    virtual void MoveRight() = 0;
-    virtual void MoveDown() = 0;
-    virtual sf::RectangleShape (&GetMatrix())[3][3] = 0;
+    
+    void MoveLeft();
+    void MoveRight();
+    void MoveDown();
+    void Draw(sf::RenderWindow& window);
+    sf::RectangleShape (&GetMatrix())[3][3];
+
+protected:
+    IShape();
+
+    sf::RectangleShape m_matrix[3][3];
+    u_int16_t m_currOrrientation;
 };
 
 class LShape : public IShape
 {
 public:
     explicit LShape();
-    void Draw(sf::RenderWindow& window);
-
     void RotateLeft() override;
-    void MoveLeft() override;
-    void MoveRight() override;
-    void MoveDown() override;
-
-    sf::RectangleShape (&GetMatrix())[3][3] { return m_matrix; }
-
-private:
-    sf::RectangleShape m_matrix[3][3];
-    u_int16_t m_currOrrientation;
 };
 
 class SquareShape : public IShape
 {
 public:
     explicit SquareShape();
-    void Draw(sf::RenderWindow& window);
-
     void RotateLeft() override;
-    void MoveLeft() override;
-    void MoveRight() override;
-    void MoveDown() override;
-
-    sf::RectangleShape (&GetMatrix())[3][3] { return m_matrix; }
-
-private:
-    sf::RectangleShape m_matrix[3][3];
 };
 
 class PlusShape : public IShape
 {
 public:
     explicit PlusShape();
-    void Draw(sf::RenderWindow& window);
-
     void RotateLeft() override;
-    void MoveLeft() override;
-    void MoveRight() override;
-    void MoveDown() override;
-
-    sf::RectangleShape (&GetMatrix())[3][3] { return m_matrix; }
-
-private:
-    sf::RectangleShape m_matrix[3][3];
-    u_int16_t m_currOrrientation;
 };
 
 class LineShape : public IShape
 {
 public:
     explicit LineShape();
-    void Draw(sf::RenderWindow& window);
-
     void RotateLeft() override;
-    void MoveLeft() override;
-    void MoveRight() override;
-    void MoveDown() override;
-
-    sf::RectangleShape (&GetMatrix())[3][3] { return m_matrix; }
-
-private:
-    sf::RectangleShape m_matrix[3][3];
-    u_int16_t m_currOrrientation;
 };
 
 class SShape : public IShape
 {
 public:
     explicit SShape();
-    void Draw(sf::RenderWindow& window);
-
     void RotateLeft() override;
-    void MoveLeft() override;
-    void MoveRight() override;
-    void MoveDown() override;
-
-    sf::RectangleShape (&GetMatrix())[3][3] { return m_matrix; }
-
-private:
-    sf::RectangleShape m_matrix[3][3];
-    u_int16_t m_currOrrientation;
 };
 
 class Board
