@@ -60,7 +60,7 @@ sf::RectangleShape (&IShape::GetMatrix())[3][3] { return m_matrix; }
 LShape::LShape()
 {
     u_int16_t x = 175;
-    u_int16_t y = 0;
+    u_int16_t y = 50;
     
     m_matrix[0][0].setFillColor(sf::Color::Blue);
     m_matrix[0][1].setFillColor(sf::Color::Black);
@@ -156,7 +156,7 @@ void LShape::RotateLeft()
 SquareShape::SquareShape() 
 {
     u_int16_t x = 175;
-    u_int16_t y = 0;
+    u_int16_t y = 50;
     
     m_matrix[0][0].setFillColor(sf::Color::Black);
     m_matrix[0][1].setFillColor(sf::Color::Black);
@@ -189,7 +189,7 @@ void SquareShape::RotateLeft() {}
 PlusShape::PlusShape()
 {
     u_int16_t x = 175;
-    u_int16_t y = 0;
+    u_int16_t y = 50;
     
     m_matrix[0][0].setFillColor(sf::Color::Black);
     m_matrix[0][1].setFillColor(sf::Color::Black);
@@ -285,7 +285,7 @@ void PlusShape::RotateLeft()
 LineShape::LineShape()
 {
     u_int16_t x = 175;
-    u_int16_t y = 0;
+    u_int16_t y = 50;
     
     m_matrix[0][0].setFillColor(sf::Color::Black);
     m_matrix[0][1].setFillColor(sf::Color::Green);
@@ -355,7 +355,7 @@ void LineShape::RotateLeft()
 SShape::SShape()
 {
     u_int16_t x = 175;
-    u_int16_t y = 0;
+    u_int16_t y = 50;
     
     m_matrix[0][0].setFillColor(sf::Color::Magenta);
     m_matrix[0][1].setFillColor(sf::Color::Black);
@@ -448,6 +448,46 @@ void SShape::RotateLeft()
     }
 }
 
+TetrisUI::TetrisUI(sf::RenderWindow& window, u_int16_t boardWidth) : 
+m_topBorder(sf::Vector2f(boardWidth, 5)), m_window(window), m_boardWidth(boardWidth)
+{
+    m_font.loadFromFile("arial.ttf");
+
+    m_topBorder.setPosition(0, 50);
+
+    m_yourScoreText.setFont(m_font);
+    m_yourScoreText.setCharacterSize(20);
+    m_yourScoreText.setString("Your score: ");
+    m_yourScoreText.setPosition(240, 10);
+
+    m_scoreText.setFont(m_font);
+    m_scoreText.setCharacterSize(20);
+    m_scoreText.setPosition(350, 10);
+    m_scoreText.setString("0");
+
+    m_yourLevelText.setFont(m_font);
+    m_yourLevelText.setCharacterSize(20);
+    m_yourLevelText.setString("Your level: ");
+    m_yourLevelText.setPosition(20, 10);
+
+    m_levelText.setFont(m_font);
+    m_levelText.setCharacterSize(20);
+    m_levelText.setPosition(120, 10);
+    m_levelText.setString("1");
+}
+
+void TetrisUI::DisplayScoreAndLevel()
+{
+    m_window.draw(m_topBorder);
+    m_window.draw(m_yourScoreText);
+    m_window.draw(m_scoreText);
+    m_window.draw(m_yourLevelText);
+    m_window.draw(m_levelText);
+}
+
+sf::Text& TetrisUI::GetScoreText() { return m_scoreText; }
+sf::Text& TetrisUI::GetLevelText() { return m_levelText; }
+
 Board::Board(u_int16_t width, u_int16_t height, std::string title) :
 m_window(sf::VideoMode(width, height), title.c_str()), m_currPiece(nullptr)
 {
@@ -472,12 +512,13 @@ std::vector<IShape *>& Board::GetShapesContainer() { return m_staticPieces; }
 IShape * Board::GetCurrPiece() { return m_currPiece; }
 void Board::SetCurrPiece(IShape *shape) { m_currPiece = shape; }
 
-GameEngine::GameEngine(u_int16_t width, u_int16_t height, std::string title) :
+GameEngine::GameEngine(u_int16_t width, u_int16_t height, std::string title, std::string username) :
 m_board(width, height, title.c_str()), m_boardWidth(width), m_boardHeight(height),
-m_frameTime(200), m_score(0), m_level(1), m_shouldRun(true), 
+m_frameTime(200), m_score(0), m_level(1), m_shouldRun(true), m_username(username),
 m_shapeOptions({ []()->IShape * { return new LShape; },
 []()->IShape * { return new SquareShape; }, []()->IShape * { return new PlusShape; },
-[]()->IShape * { return new LineShape; }, []()->IShape * { return new SShape; }}) {}
+[]()->IShape * { return new LineShape; }, []()->IShape * { return new SShape; }}),
+m_UI(m_board.GetWindow(), width) {}
 
 void GameEngine::Run()
 {
@@ -492,6 +533,7 @@ void GameEngine::Run()
             if (event.type == sf::Event::Closed)
             {
                 m_board.GetWindow().close();
+                WriteScoreToDB(m_username, std::to_string(m_score));
             }
 
             if (event.type == sf::Event::KeyPressed)
@@ -510,7 +552,6 @@ void GameEngine::Run()
             DisplayBoardPieces();
             ScanRows();
             CheckDeath();
-
 
             clock.restart();
         }
@@ -691,6 +732,8 @@ void GameEngine::DrawAllPieces()
         piece->Draw(m_board.GetWindow());
     }
 
+    m_UI.DisplayScoreAndLevel();
+
     m_board.GetWindow().display();
 }
 
@@ -763,11 +806,13 @@ void GameEngine::ScanRows()
     }
 
     m_score += 10*numRowsToErase;
+    m_UI.GetScoreText().setString(std::to_string(m_score));
     
     if (m_score >= 50*m_level)
     {
         ++m_level;
         m_frameTime -= 100;
+        m_UI.GetLevelText().setString(std::to_string(m_level));
     }
 
     for (u_int16_t s = 0; s < size; ++s)
@@ -805,7 +850,7 @@ void GameEngine::CheckDeath()
         {
             for (u_int8_t j = 0; j < 3; ++j)
             {
-                if (m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getPosition().y == 0 &&
+                if (m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getPosition().y == 50 &&
                     m_board.GetShapesContainer()[s]->GetMatrix()[i][j].getFillColor() != sf::Color::Black)
                 {
                     m_shouldRun = false;
@@ -813,4 +858,43 @@ void GameEngine::CheckDeath()
             }
         }
     }
+}
+
+void GameEngine::WriteScoreToDB(std::string username, std::string score)
+{
+    std::string selectQuery = "SELECT score FROM score_table WHERE username = '" + username + "';";
+    sqlite3_stmt* selectStmt;
+    u_int16_t existingScore = 0;
+
+    sqlite3_open("highscores.db", &m_scoreDB);
+
+    //select the relevant row
+    sqlite3_prepare_v2(m_scoreDB, selectQuery.c_str(), -1, &selectStmt, nullptr);
+
+    // if row exists, retrieve the existing score
+    if (sqlite3_step(selectStmt) == SQLITE_ROW) 
+    {
+        existingScore = sqlite3_column_int(selectStmt, 0);
+    }
+
+    sqlite3_finalize(selectStmt);
+
+    if (std::stoi(score) > existingScore)
+    {
+        std::string updateQuery;
+
+        if (existingScore == 0) // if user doesn't exist, insert a new record
+        {
+            updateQuery = "INSERT INTO score_table (username, score) VALUES ('" + username + "', " + score + ");";
+        }
+
+        else
+        {
+            updateQuery = "UPDATE score_table SET score = " + score + " WHERE username = '" + username + "';";
+        }
+
+        sqlite3_exec(m_scoreDB, updateQuery.c_str(), 0, 0, nullptr);
+    }
+
+    sqlite3_close(m_scoreDB);
 }

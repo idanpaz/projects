@@ -1,10 +1,11 @@
-To install sfml graphics library, execute the following command:
+To install sfml graphics and sqlite3 libraries, execute the following commands:
 
 sudo apt install libsfml-dev
+sudo apt install libsqlite3-dev
 
 To compile the game, write the following line in terminal:
 
-g++ tetris.cpp tetris_test.cpp -lsfml-graphics -lsfml-window -lsfml-system -o tetris
+g++ tetris.cpp tetris_test.cpp -lsfml-graphics -lsfml-window -lsfml-system -lsqlite3 -o tetris
 
 To run the game, simply write:
 
