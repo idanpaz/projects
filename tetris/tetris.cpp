@@ -80,10 +80,10 @@ LShape::LShape()
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += Shape::SQSIZE;
+            x += SQSIZE;
         }
 
-        y += Shape::SQSIZE;
+        y += SQSIZE;
         x = INITIAL_XPOS;
     }
 }
@@ -176,10 +176,10 @@ SquareShape::SquareShape()
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += Shape::SQSIZE;
+            x += SQSIZE;
         }
 
-        y += Shape::SQSIZE;
+        y += SQSIZE;
         x = INITIAL_XPOS;
     }
 }
@@ -209,10 +209,10 @@ PlusShape::PlusShape()
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += Shape::SQSIZE;
+            x += SQSIZE;
         }
 
-        y += Shape::SQSIZE;
+        y += SQSIZE;
         x = INITIAL_XPOS;
     }
 }
@@ -305,10 +305,10 @@ LineShape::LineShape()
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += Shape::SQSIZE;
+            x += SQSIZE;
         }
 
-        y += Shape::SQSIZE;
+        y += SQSIZE;
         x = INITIAL_XPOS;
     }
 }
@@ -375,10 +375,10 @@ SShape::SShape()
             m_matrix[i][j].setOutlineThickness(1);
             m_matrix[i][j].setSize(sf::Vector2f(25.0f, 25.0f));
             m_matrix[i][j].setPosition(x, y);
-            x += Shape::SQSIZE;
+            x += SQSIZE;
         }
 
-        y += Shape::SQSIZE;
+        y += SQSIZE;
         x = INITIAL_XPOS;
     }
 }
@@ -560,7 +560,7 @@ void GameEngine::Run()
 
 void GameEngine::HandleInputs(sf::Event& event)
 {
-    if (m_board.GetCurrPiece() && !IsOnFloor() && !IsOnOtherPiece())
+    if (m_board.GetCurrPiece())
     {
         if (event.key.code == sf::Keyboard::Up &&
             !IsOnLeftEdge() && !IsOnRightEdge())
@@ -580,7 +580,8 @@ void GameEngine::HandleInputs(sf::Event& event)
             m_board.GetCurrPiece()->MoveRight();
         }
 
-        else if (event.key.code == sf::Keyboard::Down)
+        else if (event.key.code == sf::Keyboard::Down &&
+                 !IsOnFloor() && !IsOnOtherPiece())
         {
             m_board.GetCurrPiece()->MoveDown();
         }
@@ -612,6 +613,40 @@ bool GameEngine::IsOnFloor()
     }
 
     return false;
+}
+
+bool GameEngine::IsOnLeftEdge()
+{
+    for (u_int8_t i = 0; i < Shape::ROWS; ++i)
+    {
+        for (u_int8_t j = 0; j < Shape::COLS; ++j)
+        {
+            if (m_board.GetCurrPiece()->GetMatrix()[i][j].getFillColor() != sf::Color::Black && 
+                m_board.GetCurrPiece()->GetMatrix()[i][j].getPosition().x == 0)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool GameEngine::IsOnRightEdge()
+{
+    for (u_int8_t i = 0; i < Shape::ROWS; ++i)
+    {
+        for (u_int8_t j = 0; j < Shape::COLS; ++j)
+        {
+            if (m_board.GetCurrPiece()->GetMatrix()[i][j].getFillColor() != sf::Color::Black && 
+                m_board.GetCurrPiece()->GetMatrix()[i][j].getPosition().x == m_boardWidth - Shape::SQSIZE)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;   
 }
 
 bool GameEngine::IsOnOtherPiece()
@@ -684,39 +719,6 @@ bool GameEngine::IsAsideOtherPiece()
     return false;   
 }
 
-bool GameEngine::IsOnLeftEdge()
-{
-    for (u_int8_t i = 0; i < Shape::ROWS; ++i)
-    {
-        for (u_int8_t j = 0; j < Shape::COLS; ++j)
-        {
-            if (m_board.GetCurrPiece()->GetMatrix()[i][j].getFillColor() != sf::Color::Black && 
-                m_board.GetCurrPiece()->GetMatrix()[i][j].getPosition().x == 0)
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-bool GameEngine::IsOnRightEdge()
-{
-    for (u_int8_t i = 0; i < Shape::ROWS; ++i)
-    {
-        for (u_int8_t j = 0; j < Shape::COLS; ++j)
-        {
-            if (m_board.GetCurrPiece()->GetMatrix()[i][j].getFillColor() != sf::Color::Black && 
-                m_board.GetCurrPiece()->GetMatrix()[i][j].getPosition().x == m_boardWidth - Shape::SQSIZE)
-            {
-                return true;
-            }
-        }
-    }
-
-    return false;   
-}
 
 void GameEngine::DrawAllPieces()
 {

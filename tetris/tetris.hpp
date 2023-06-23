@@ -33,56 +33,56 @@ protected:
 class LShape : public Shape
 {
 public:
-    explicit LShape();
+    LShape();
     void RotateLeft() override;
 };
 
 class SquareShape : public Shape
 {
 public:
-    explicit SquareShape();
+    SquareShape();
     void RotateLeft() override;
 };
 
 class PlusShape : public Shape
 {
 public:
-    explicit PlusShape();
+    PlusShape();
     void RotateLeft() override;
 };
 
 class LineShape : public Shape
 {
 public:
-    explicit LineShape();
+    LineShape();
     void RotateLeft() override;
 };
 
 class SShape : public Shape
 {
 public:
-    explicit SShape();
+    SShape();
     void RotateLeft() override;
 };
 
 class TetrisUI
 {
 public:
-    TetrisUI(sf::RenderWindow& window, u_int16_t boardWidth);
+    explicit TetrisUI(sf::RenderWindow& window, u_int16_t boardWidth);
 
     void DisplayScoreAndLevel();
     sf::Text &GetScoreText();
     sf::Text &GetLevelText();
 
 private:
+    sf::Font m_font;
     sf::Text m_yourScoreText;
     sf::Text m_scoreText;
     sf::Text m_yourLevelText;
     sf::Text m_levelText;
     sf::RectangleShape m_topBorder;
-    sf::Font m_font;
-    u_int16_t m_boardWidth;
     sf::RenderWindow& m_window;
+    u_int16_t m_boardWidth;
 };
 
 class Board
@@ -94,7 +94,6 @@ public:
     sf::RenderWindow& GetWindow();
     std::vector<Shape *>& GetShapesContainer();
     Shape *GetCurrPiece();
-
     void SetCurrPiece(Shape *shape);
 
 private:
@@ -127,15 +126,15 @@ private:
     u_int16_t GetRandomShape();
 
     Board m_board;
+    TetrisUI m_UI;
+    sqlite3* m_scoreDB;
+    std::string m_username;
+    std::vector<std::function<Shape *()> > m_shapeFactory;
+    std::random_device m_rd;
     u_int16_t m_boardWidth;
     u_int16_t m_boardHeight;
     u_int16_t m_frameTime;
     u_int16_t m_score;
     u_int16_t m_level;
-    std::string m_username;
-    std::vector<std::function<Shape *()> > m_shapeFactory;
-    std::random_device m_rd;
     bool m_shouldRun;
-    TetrisUI m_UI;
-    sqlite3* m_scoreDB;
 };
