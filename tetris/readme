@@ -1,12 +1,5 @@
-To install sfml graphics and sqlite3 libraries, execute the following commands:
+To run the game on your machine:
 
-sudo apt install libsfml-dev
-sudo apt install libsqlite3-dev
+docker build -t tetris-game .
+docker run --rm -it --privileged -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix tetris-game
 
-To compile the game, write the following line in terminal:
-
-g++ tetris.cpp tetris_test.cpp -lsfml-graphics -lsfml-window -lsfml-system -lsqlite3 -o tetris
-
-To run the game, simply write:
-
-./tetris
